@@ -42,3 +42,18 @@ df.isnull().sum()
 # Visualise Data
 #styler = df.style.highlight_max(axis='index')
 #breakpoint()
+
+# Calculate expected annualized returns and sample covariance
+mu = expected_returns.mean_historical_return(df)
+Sigma = risk_models.sample_cov(df)
+
+# Calculate the Efficient Frontier with mu and S
+ef = EfficientFrontier(mu, Sigma)
+# favouring minimum volatility
+raw_weights = ef.min_volatility()
+
+# Get interpretable weights
+cleaned_weights = ef.clean_weights()
+
+# Get performance numbers
+ef.portfolio_performance(verbose=True)
