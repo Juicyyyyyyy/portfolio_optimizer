@@ -10,6 +10,7 @@ csvFiles = os.listdir("data")
 data = []
 for file in csvFiles:
     df = pd.read_csv('data/' + file)
+
     # Selecting necessary columns
     selected_data = df[['Date', 'Symbol', 'Close']]
 
@@ -25,5 +26,9 @@ for file in csvFiles:
 
 df = pd.concat([df.set_index('Date') for df in data], axis=1).reset_index()
 
-styler = df.style.highlight_max(axis='index')
+# Sort by the 'Date' column in descending order
+df = df.sort_values('Date', ascending=False)
 
+# Visualise Data
+#styler = df.style.highlight_max(axis='index')
+#breakpoint()
