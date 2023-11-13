@@ -4,6 +4,11 @@ from pypfopt import expected_returns
 import pandas as pd
 import os
 
+import numpy as np
+import warnings
+import matplotlib.pyplot as plt
+warnings.filterwarnings('ignore')
+
 
 csvFiles = os.listdir("data")
 
@@ -26,8 +31,13 @@ for file in csvFiles:
 
 df = pd.concat([df.set_index('Date') for df in data], axis=1).reset_index()
 
+df.set_index('Date', inplace=True)
+
 # Sort by the 'Date' column in descending order
 df = df.sort_values('Date', ascending=False)
+
+df.ffill(inplace=True)
+df.isnull().sum()
 
 # Visualise Data
 #styler = df.style.highlight_max(axis='index')
