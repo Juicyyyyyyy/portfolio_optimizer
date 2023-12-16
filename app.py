@@ -2,58 +2,34 @@ from pypfopt.efficient_frontier import EfficientFrontier
 from pypfopt import risk_models
 from pypfopt import expected_returns
 import pandas as pd
-import os
-
-import numpy as np
+import yfinance as yf
 import warnings
 import matplotlib.pyplot as plt
+
 warnings.filterwarnings('ignore')
 
+# Update the ticker symbols as needed (e.g., change 'FB' to 'META' if required)
+stock_symbols = ["AAPL", "MSFT", "GOOG", "AMZN", "META"]  # Changed 'FB' to 'META'
+start_date = "2020-01-01"
+end_date = "2023-01-01"
 
-csvFiles = os.listdir("data")
+# Fetching data from Yahoo Finance
+data = yf.download(stock_symbols, start=start_date, end=end_date)['Adj Close']
 
-data = []
-for file in csvFiles:
-    df = pd.read_csv('data/' + file)
-
-    # Selecting necessary columns
-    selected_data = df[['Date', 'Symbol', 'Close']]
-
-    # Pivot the table
-    pivoted_data = selected_data.pivot(index='Date', columns='Symbol', values='Close')
-
-    # Rename the columns
-    pivoted_data.columns.name = pivoted_data.columns.name if pivoted_data.columns.name is not None else ''
-    pivoted_data = pivoted_data.reset_index().rename_axis(None, axis=1)
-
-    data.append(pivoted_data)
-
-
-df = pd.concat([df.set_index('Date') for df in data], axis=1).reset_index()
-
-df.set_index('Date', inplace=True)
-
-# Sort by the 'Date' column in descending order
-df = df.sort_values('Date', ascending=False)
-
-df.ffill(inplace=True)
-df.isnull().sum()
-
-# Visualise Data
-#styler = df.style.highlight_max(axis='index')
-#breakpoint()
+# Check and handle missing values
+data.ffill(inplace=True)
+if data.isnull().sum().sum() > 0:
+    print("Warning: Some data are missing after forward fill.")
 
 # Calculate expected annualized returns and sample covariance
-mu = expected_returns.mean_historical_return(df)
-Sigma = risk_models.sample_cov(df)
+mu = expected_returns.mean_historical_return(data)
+Sigma = risk_models.sample_cov(data)
 
-# Calculate the Efficient Frontier with mu and S
+# Optimize for the efficient frontier
 ef = EfficientFrontier(mu, Sigma)
-# favouring minimum volatility
-raw_weights = ef.min_volatility()
-
-# Get interpretable weights
-cleaned_weights = ef.clean_weights()
-
-# Get performance numbers
-ef.portfolio_performance(verbose=True)
+try:
+    raw_weights = ef.min_volatility()
+    cleaned_weights = ef.clean_weights()
+    ef.portfolio_performance(verbose=True)
+except ValueError as e:
+    print("Error in optimization:", e)
