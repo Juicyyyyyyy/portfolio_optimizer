@@ -14,7 +14,7 @@ def callGpt(prompt):
 
     # Process the prompt and return the result
     response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",  # Choose the appropriate chat model
+        model="gpt-4",  # Choose the appropriate chat model
         messages=[
             {"role": "user", "content": prompt},
         ]

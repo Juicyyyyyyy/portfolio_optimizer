@@ -22,15 +22,15 @@ def validate_tickers(tickers):
 
 # Example user inputs (these should be dynamically obtained based on user interaction)
 user_risk_tolerance = "moderate"  # Example user input
-user_investment_focus = "technology and renewable energy"  # Example user input
+user_investment_focus = "technology, research, AI, medical"  # Example user input
 user_investment_timeframe = "long-term"  # Example user input
-# ... other user inputs for the prompts
+user_investment_values = "anything"
 
 # Generate prompts and get AI responses
 industry_analysis = callGpt(prompt.industry_and_sector_analysis(user_risk_tolerance, user_investment_focus, user_investment_timeframe))
 financial_news = callGpt(prompt.financial_news_summary(user_investment_focus, user_risk_tolerance, user_investment_timeframe))
 analyst_reports = callGpt(prompt.analyst_reports_summary(user_investment_focus, user_risk_tolerance, user_investment_timeframe))
-esg_analysis = callGpt(prompt.esg_factor_analysis(user_investment_focus))
+esg_analysis = callGpt(prompt.esg_factor_analysis(user_investment_focus, user_investment_values))
 regulatory_developments = callGpt(prompt.regulatory_developments_summary(user_investment_focus))
 
 # Generate final prompt for stock symbols
