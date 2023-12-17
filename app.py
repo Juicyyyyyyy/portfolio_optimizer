@@ -3,6 +3,7 @@ from pypfopt.efficient_frontier import EfficientFrontier
 from pypfopt import risk_models, expected_returns
 import yfinance as yf
 import ast
+import datetime
 
 # Import custom functions for AI integration
 from OpenAi.functions import callGpt, extract_text_between_tags
@@ -20,11 +21,12 @@ def validate_tickers(tickers):
     return valid_tickers
 
 
-# Example user inputs (these should be dynamically obtained based on user interaction)
-user_risk_tolerance = "moderate"  # Example user input
-user_investment_focus = "technology, research, AI, medical"  # Example user input
-user_investment_timeframe = "long-term"  # Example user input
-user_investment_values = "anything"
+# Dynamically obtaining user inputs
+user_risk_tolerance = input("Enter your risk tolerance (e.g., 'low', 'moderate', 'high'): ") or "moderate"
+user_investment_focus = input("Enter your investment focus areas (e.g., 'technology, renewable energy'): ") or "technology, research, AI, medical"
+user_investment_timeframe = input("Enter your investment timeframe (e.g., 'short-term', 'long-term'): ") or "long-term"
+user_investment_values = input("Enter your investment values (e.g., 'sustainable', 'growth-oriented'): ") or "anything"
+user_global_focus = input("Enter your global focus areas (leave blank if none): ") or ""
 
 # Generate prompts and get AI responses
 industry_analysis = callGpt(prompt.industry_and_sector_analysis(user_risk_tolerance, user_investment_focus, user_investment_timeframe))
@@ -44,8 +46,11 @@ stock_symbols = ast.literal_eval(stock_symbols)
 
 validated_stock_symbols = validate_tickers(stock_symbols)
 
+end_date = datetime.datetime.now()
+start_date = end_date - datetime.timedelta(days=10*365)  # Subtract 10 years (approximately)
+
 # Proceed with fetching data for only the validated tickers
-data = yf.download(validated_stock_symbols, start="2020-01-01", end="2023-01-01")['Adj Close']
+data = yf.download(validated_stock_symbols, start=start_date, end=end_date)['Adj Close']
 
 # Portfolio optimization calculations
 mu = expected_returns.mean_historical_return(data)
