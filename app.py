@@ -6,8 +6,8 @@ import ast
 import datetime
 
 # Import custom functions for AI integration
-from OpenAi.functions import callGpt, extract_text_between_tags
-import OpenAi.prompt as prompt
+from ChatGPT.functions import callGpt, extract_text_between_tags
+from ChatGPT.prompt import Prompt
 
 def validate_tickers(tickers):
     valid_tickers = []
@@ -23,26 +23,20 @@ def validate_tickers(tickers):
 
 # Dynamically obtaining user inputs
 user_risk_tolerance = input("Enter your risk tolerance (e.g., 'low', 'moderate', 'high'): ") or "moderate"
-user_investment_focus = input("Enter your investment focus areas (e.g., 'technology, renewable energy'): ") or "technology, research, AI, medical"
+user_investment_area = input("Enter your investment focus areas (e.g., 'technology, renewable energy'): ") or "technology, research, AI, medical"
 user_investment_timeframe = input("Enter your investment timeframe (e.g., 'short-term', 'long-term'): ") or "long-term"
-user_investment_values = input("Enter your investment values (e.g., 'sustainable', 'growth-oriented'): ") or "anything"
-user_global_focus = input("Enter your global focus areas (leave blank if none): ") or ""
-
-# Generate prompts and get AI responses
-industry_analysis = callGpt(prompt.industry_and_sector_analysis(user_risk_tolerance, user_investment_focus, user_investment_timeframe))
-financial_news = callGpt(prompt.financial_news_summary(user_investment_focus, user_risk_tolerance, user_investment_timeframe))
-analyst_reports = callGpt(prompt.analyst_reports_summary(user_investment_focus, user_risk_tolerance, user_investment_timeframe))
-esg_analysis = callGpt(prompt.esg_factor_analysis(user_investment_focus, user_investment_values))
-regulatory_developments = callGpt(prompt.regulatory_developments_summary(user_investment_focus))
 
 # Generate final prompt for stock symbols
-final_prompt = prompt.generate_stock_symbols_prompt(industry_analysis, financial_news, analyst_reports, esg_analysis, regulatory_developments, user_risk_tolerance, user_investment_timeframe)
+final_prompt = Prompt.generate_stock_recommendation_prompt(user_risk_tolerance, user_investment_area, user_investment_timeframe)
 stock_recommendations = callGpt(final_prompt)
 
 # Extract stock symbols from the final response
 # (This requires a function to parse the AI response and extract stock symbols)
 stock_symbols = extract_text_between_tags(stock_recommendations)
-stock_symbols = ast.literal_eval(stock_symbols)
+try:
+    stock_symbols = ast.literal_eval(stock_symbols)
+except:
+    stock_symbols = ast.literal_eval(callGpt(final_prompt))
 
 validated_stock_symbols = validate_tickers(stock_symbols)
 
