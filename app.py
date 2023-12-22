@@ -1,61 +1,61 @@
-# Import necessary modules
-from pypfopt.efficient_frontier import EfficientFrontier
-from pypfopt import risk_models, expected_returns
-import yfinance as yf
-import ast
-import datetime
+import customtkinter as ctk
+import tkinter as tk
+from PortfolioOptimizer.ManageTickers import ManageTickers
+from ChatGPT.Prompt import Prompt
+from ChatGPT.ApiGpt import GPT
 
-# Import custom functions for AI integration
-from ChatGPT.functions import callGpt, extract_text_between_tags
-from ChatGPT.prompt import Prompt
+class ManageTickersApp(ctk.CTk):
 
-def validate_tickers(tickers):
-    valid_tickers = []
-    for ticker in tickers:
-        stock_data = yf.Ticker(ticker)
-        # Check if the ticker has historical data as a proxy for validation
-        if not stock_data.history(period="1d").empty:
-            valid_tickers.append(ticker)
-        else:
-            print(f"Ticker {ticker} is not valid or delisted.")
-    return valid_tickers
+    def __init__(self):
+        super().__init__()
 
+        self.title("Portfolio Optimizer")
+        self.geometry("600x500")
 
-# Dynamically obtaining user inputs
-user_risk_tolerance = input("Enter your risk tolerance (e.g., 'low', 'moderate', 'high'): ") or "moderate"
-user_investment_area = input("Enter your investment focus areas (e.g., 'technology, renewable energy'): ") or "technology, research, AI, medical"
-user_investment_timeframe = input("Enter your investment timeframe (e.g., 'short-term', 'long-term'): ") or "long-term"
+        # Dropdown for User Risk Tolerance
+        ctk.CTkLabel(self, text="Select Your Risk Tolerance:").pack(pady=10)
+        self.risk_tolerance = ctk.StringVar()
+        self.dropdown_risk = ctk.CTkOptionMenu(self, variable=self.risk_tolerance, values=["Low", "Moderate", "High"])
+        self.risk_tolerance.set("Moderate")
+        self.dropdown_risk.pack(pady=10)
 
-# Generate final prompt for stock symbols
-final_prompt = Prompt.generate_stock_recommendation_prompt(user_risk_tolerance, user_investment_area, user_investment_timeframe)
-stock_recommendations = callGpt(final_prompt)
+        # Entry for User Investment Area
+        ctk.CTkLabel(self, text="Enter Your Investment Area:").pack(pady=10)
+        self.entry_investment_area = ctk.CTkEntry(self)
+        self.entry_investment_area.pack(pady=10)
 
-# Extract stock symbols from the final response
-# (This requires a function to parse the AI response and extract stock symbols)
-stock_symbols = extract_text_between_tags(stock_recommendations)
-try:
-    stock_symbols = ast.literal_eval(stock_symbols)
-except:
-    stock_symbols = ast.literal_eval(callGpt(final_prompt))
+        # Dropdown for Investment Timeframe
+        ctk.CTkLabel(self, text="Select Investment Timeframe:").pack(pady=10)
+        self.investment_timeframe = ctk.StringVar()
+        self.dropdown_timeframe = ctk.CTkOptionMenu(self, variable=self.investment_timeframe, values=["Short-Term",
+                                                                                                      "Long-Term"])
+        self.investment_timeframe.set("Long-Term")
+        self.dropdown_timeframe.pack(pady=10)
 
-validated_stock_symbols = validate_tickers(stock_symbols)
+        # Button to Validate and Calculate
+        ctk.CTkButton(self, text="Validate and Calculate", command=self.validate_and_calculate).pack(pady=20)
 
-end_date = datetime.datetime.now()
-start_date = end_date - datetime.timedelta(days=10*365)  # Subtract 10 years (approximately)
+        # Output Area
+        self.output = ctk.CTkLabel(self, text="", wraplength=500)
+        self.output.pack(pady=10)
 
-# Proceed with fetching data for only the validated tickers
-data = yf.download(validated_stock_symbols, start=start_date, end=end_date)['Adj Close']
+    def validate_and_calculate(self):
+        prompt = Prompt(self.risk_tolerance.get(), self.entry_investment_area.get(), self.investment_timeframe.get())
+        prompt_stock_recommendation = prompt.generate_stock_recommendation_prompt()
 
-# Portfolio optimization calculations
-mu = expected_returns.mean_historical_return(data)
-Sigma = risk_models.sample_cov(data)
-ef = EfficientFrontier(mu, Sigma)
-raw_weights = ef.max_sharpe()
-cleaned_weights = ef.clean_weights()
+        gpt = GPT(prompt_stock_recommendation)
 
-for stock, weight in cleaned_weights.items():
-    if weight > 0:
-        print(f"{stock}: {weight:.4f}")  # Display non-zero weights
+        gpt_stock_recommendation = gpt.callGpt()
 
-# Display portfolio performance
-ef.portfolio_performance(verbose=True)
+        tickers = gpt.extract_text_between_tags(gpt_stock_recommendation)
+        print('gpt stock recommandation ' + gpt_stock_recommendation)
+        print('cleaned tickers list ' + tickers)
+        manage_tickers = ManageTickers(tickers)
+
+        optimized_portfolio_data = manage_tickers.compute_optimized_portfolio_data()
+        print(optimized_portfolio_data['cleaned_weights'])
+        self.output.configure(text=f"Cleaned Weights : {optimized_portfolio_data['cleaned_weights']}")
+
+if __name__ == "__main__":
+    app = ManageTickersApp()
+    app.mainloop()
