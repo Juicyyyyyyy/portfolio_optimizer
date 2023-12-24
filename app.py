@@ -1,8 +1,9 @@
 import customtkinter as ctk
 import tkinter as tk
-from PortfolioOptimizer.ManageTickers import ManageTickers
+from PortfolioOptimizer.PortfolioOptimizer import PortfolioOptimizer
 from ChatGPT.Prompt import Prompt
 from ChatGPT.ApiGpt import GPT
+import datetime
 
 class ManageTickersApp(ctk.CTk):
 
@@ -38,23 +39,6 @@ class ManageTickersApp(ctk.CTk):
         # Output Area
         self.output = ctk.CTkLabel(self, text="", wraplength=500)
         self.output.pack(pady=10)
-
-    def validate_and_calculate(self):
-        prompt = Prompt(self.risk_tolerance.get(), self.entry_investment_area.get(), self.investment_timeframe.get())
-        prompt_stock_recommendation = prompt.generate_stock_recommendation_prompt()
-
-        gpt = GPT(prompt_stock_recommendation)
-
-        gpt_stock_recommendation = gpt.callGpt()
-
-        tickers = gpt.extract_text_between_tags(gpt_stock_recommendation)
-        print('gpt stock recommandation ' + gpt_stock_recommendation)
-        print('cleaned tickers list ' + tickers)
-        manage_tickers = ManageTickers(tickers)
-
-        optimized_portfolio_data = manage_tickers.compute_optimized_portfolio_data()
-        print(optimized_portfolio_data['cleaned_weights'])
-        self.output.configure(text=f"Cleaned Weights : {optimized_portfolio_data['cleaned_weights']}")
 
 if __name__ == "__main__":
     app = ManageTickersApp()
