@@ -40,6 +40,25 @@ class ManageTickersApp(ctk.CTk):
         self.output = ctk.CTkLabel(self, text="", wraplength=500)
         self.output.pack(pady=10)
 
+    def validate_and_calculate(self):
+        prompt = Prompt(self.risk_tolerance.get(), self.entry_investment_area.get(), self.investment_timeframe.get())
+        prompt_stock_recommendation = prompt.generate_stock_recommendation_prompt()
+
+        gpt = GPT(prompt_stock_recommendation)
+
+        gpt_stock_recommendation = gpt.callGpt()
+
+        tickers = gpt.extract_text_between_tags(gpt_stock_recommendation)
+
+        end_date = datetime.datetime.now()
+        start_date = end_date - datetime.timedelta(days=10 * 365)
+
+        manage_tickers = PortfolioOptimizer(tickers, start_date, end_date)
+
+        optimized_portfolio_data = manage_tickers.compute_optimized_portfolio_data()
+        print(optimized_portfolio_data['cleaned_weights'])
+        self.output.configure(text=f"Cleaned Weights : {optimized_portfolio_data['cleaned_weights']}")
+
 if __name__ == "__main__":
     app = ManageTickersApp()
     app.mainloop()
