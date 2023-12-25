@@ -55,9 +55,9 @@ class ManageTickersApp(ctk.CTk):
 
         manage_tickers = PortfolioOptimizer(tickers, start_date, end_date)
 
-        optimized_portfolio_data = manage_tickers.compute_optimized_portfolio_data()
-        print(optimized_portfolio_data['cleaned_weights'])
-        self.output.configure(text=f"Cleaned Weights : {optimized_portfolio_data['cleaned_weights']}")
+        optimized_portfolio_data = manage_tickers.compute_optimized_portfolio_via_monte_carlo()
+        print(optimized_portfolio_data['weights'])
+        self.output.configure(text=f"Cleaned Weights : {optimized_portfolio_data['weights']}")
 
 if __name__ == "__main__":
     app = ManageTickersApp()
