@@ -32,7 +32,6 @@ class BlackLitterman(PortfolioOptimizer):
 		"""
 		Convert user inputs into P and Q matrices for the Black-Litterman model.
 
-		:param assets: List of assets in the portfolio.
 		:param views: List of dictionaries containing the user's views.
 		:return: P and Q matrices.
 

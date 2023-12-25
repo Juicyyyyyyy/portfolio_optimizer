@@ -3,7 +3,7 @@ import pytest
 from PortfolioOptimizer.PortfolioOptimizer import PortfolioOptimizer
 
 # Sample data for tests
-tickers = "['AAPL', 'TSLA', 'BTC']"  # adjust as needed
+tickers = ['AAPL', 'TSLA', 'BTC']
 start_date = "2021-01-01"
 end_date = "2022-01-01"
 total_portfolio_value = 10000
@@ -19,12 +19,6 @@ def test_init(optimizer):
     assert optimizer.start_date == start_date
     assert optimizer.end_date == end_date
     assert optimizer.total_portfolio_value == total_portfolio_value
-
-def test_validate_tickers(optimizer):
-    """Test the ticker validation method"""
-    valid_tickers = optimizer.validate_tickers()
-    assert isinstance(valid_tickers, list)
-    # Add more assertions based on expected valid tickers
 
 def test_compute_optimized_portfolio_data(optimizer):
     """Test the portfolio computation method"""

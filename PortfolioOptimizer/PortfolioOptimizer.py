@@ -5,20 +5,19 @@ from pypfopt.discrete_allocation import DiscreteAllocation, get_latest_prices
 import numpy as np
 
 import yfinance as yf
-import ast
 import datetime
 
 
 class PortfolioOptimizer:
 
-	def __init__(self, tickers, start_date, end_date, total_portfolio_value=10000):
+	def __init__(self, tickers: list, start_date: datetime, end_date: datetime, total_portfolio_value=10000):
 		"""
-		:param tickers: the tickers in a string format : "'[AAPL]', '[TSL]', '[BTC]'"
+		:param tickers: the list of tickers
+		:param start_date: the start date for data fetching
+		:param end_date: the end date for data fetching
+		:param total_portfolio_value: the total value of the simulated portfolio
 		"""
 		self.tickers = tickers
-
-		self.tickers = ast.literal_eval(self.tickers)
-		self.tickers = self.validate_tickers()
 
 		self.start_date = start_date
 		self.end_date = end_date
@@ -29,17 +28,12 @@ class PortfolioOptimizer:
 		self.Sigma = risk_models.sample_cov(self.data)
 		self.ef = EfficientFrontier(self.mu, self.Sigma)
 
-	def validate_tickers(self) -> list[str]:
+	def compute_optimized_portfolio_data(self) -> dict:
+		"""
+		Use MPT on its simplest form to find the theoretical best portfolio based on historical data
 
-		valid_tickers = []
-		for ticker in self.tickers:
-			stock_data = yf.Ticker(ticker)
-			# Check if the ticker has historical data as a proxy for validation
-			if not stock_data.history(period="1d").empty:
-				valid_tickers.append(ticker)
-		return valid_tickers
-
-	def compute_optimized_portfolio_data(self):
+		:return: The most optimal weight allocation based on historical data
+		"""
 
 		raw_weights = self.ef.max_sharpe()
 		cleaned_weights = self.ef.clean_weights()
@@ -59,7 +53,13 @@ class PortfolioOptimizer:
 			"expected_annual_return": expected_annual_return
 		}
 
-	def get_concrete_allocation(self, weights):
+	def get_concrete_allocation(self, weights: {dict}) -> dict:
+		"""
+		Convert the percent weight allocation to a concrete one in $ based on the self.total_portfolio_value
+
+		:param weights: continuous weights generated from the ``efficient_frontier`` module
+		:return: the concrete allocation in $
+		"""
 
 		latest_prices = get_latest_prices(self.data)
 
@@ -72,13 +72,13 @@ class PortfolioOptimizer:
 			"funds_remaining": leftover
 		}
 
-	def compute_optimized_portfolio_via_monte_carlo(self):
+	def compute_optimized_portfolio_via_monte_carlo(self) -> dict:
 		"""
 		Use Monte Carlo method to resample the efficient frontier inputs.
 		This method will optimize the weight allocations based on the Monte Carlo simulation
 		of expected returns and risks.
 
-		:return: The optimized weight allocations and respective portfolio performance
+		:return: The optimized weight allocations using Monte Carlo and respective portfolio performance
 		"""
 		# Define the number of simulations
 		num_portfolios = 10000
