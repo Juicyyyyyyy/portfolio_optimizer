@@ -1,124 +1,103 @@
 from pypfopt.efficient_frontier import EfficientFrontier
 from pypfopt import risk_models, expected_returns
 from pypfopt.discrete_allocation import DiscreteAllocation, get_latest_prices
+import logging
+from abc import ABC, abstractmethod
 
 import numpy as np
 
 import yfinance as yf
+import pandas as pd
+from typing import List, Any, Dict
+
 import datetime
 
 
-class PortfolioOptimizer:
+class MarketDataProvider(ABC):
+	@abstractmethod
+	def get_data(self, tickers: List[str], start_date: str, end_date: str) -> pd.DataFrame:
+		pass
 
-	def __init__(self, tickers: list, start_date: datetime, end_date: datetime, total_portfolio_value=10000):
+
+class YFinanceDataProvider(MarketDataProvider):
+	def get_data(self, tickers: List[str], start_date: str, end_date: str) -> pd.DataFrame:
+		try:
+			data = yf.download(tickers, start=start_date, end=end_date)
+			return data['Adj Close']
+		except Exception as e:
+			logging.error(f"Error fetching data for {tickers} from {start_date} to {end_date}: {e}")
+		raise ValueError("Failed to fetch data. Please check your tickers and date range.")
+
+
+class ExpectedReturnCalculator(ABC):
+	@abstractmethod
+	def calculate_expected_return(self, data: pd.DataFrame) -> Any:
 		"""
-		:param tickers: the list of tickers
-		:param start_date: the start date for data fetching
-		:param end_date: the end date for data fetching
-		:param total_portfolio_value: the total value of the simulated portfolio
+		Calculate the expected returns.
+		:param data: Historical price data as panda DataFrame
 		"""
-		self.tickers = tickers
+		pass
 
-		self.start_date = start_date
-		self.end_date = end_date
-		self.data = yf.download(self.tickers, start=self.start_date, end=self.end_date)['Adj Close']
-		self.total_portfolio_value = total_portfolio_value
 
-		self.mu = expected_returns.mean_historical_return(self.data)
-		self.Sigma = risk_models.sample_cov(self.data)
-		self.ef = EfficientFrontier(self.mu, self.Sigma)
+class MeanHistoricalReturnCalculator(ExpectedReturnCalculator):
+	def calculate_expected_return(self, data: pd.DataFrame) -> Any:
+		return expected_returns.mean_historical_return(data)
 
-	def compute_optimized_portfolio_data(self) -> dict:
+
+class CovarianceCalculator(ABC):
+	@abstractmethod
+	def calculate_covariance(self, data: pd.DataFrame):
 		"""
-		Use MPT on its simplest form to find the theoretical best portfolio based on historical data
-
-		:return: The most optimal weight allocation based on historical data
+		Calculate the covariance matrix
+		:param data: Historical price data as panda DataFrame
 		"""
+	pass
 
-		raw_weights = self.ef.max_sharpe()
-		cleaned_weights = self.ef.clean_weights()
 
-		organized_cleaned_weights = {stock: f"{weight:.4f}" for stock, weight in cleaned_weights.items() if weight > 0}
-		organized_cleaned_weights = dict(
-			sorted(organized_cleaned_weights.items(), key=lambda item: item[1], reverse=True))
-		organized_cleaned_weights_list = [f"{stock}: {weight}" for stock, weight in organized_cleaned_weights.items()]
-
-		performance = self.ef.portfolio_performance(verbose=False)
-
-		expected_annual_return, annual_volatility, sharpe_ratio = performance
-
-		return {
-			"weights": organized_cleaned_weights,
-			"sharpe_ratio": sharpe_ratio,
-			"expected_annual_return": expected_annual_return
-		}
-
-	def get_concrete_allocation(self, weights: {dict}) -> dict:
+class SampleCovarianceCalculator(CovarianceCalculator):
+	def calculate_covariance(self, data: pd.DataFrame):
 		"""
-		Convert the percent weight allocation to a concrete one in $ based on the self.total_portfolio_value
-
-		:param weights: continuous weights generated from the ``efficient_frontier`` module
-		:return: the concrete allocation in $
+		Calculate the covariance matrix using the sample covariance method
+		:param data: Historical price data as panda DataFrame
+		:return: The covariance matrix
 		"""
+		return risk_models.sample_cov(data)
 
-		latest_prices = get_latest_prices(self.data)
 
-		concrete_allocation = DiscreteAllocation(weights, latest_prices, self.total_portfolio_value)
-
-		allocation, leftover = concrete_allocation.greedy_portfolio()
-
-		return {
-			"concrete_allocation": allocation,
-			"funds_remaining": leftover
-		}
-
-	def compute_optimized_portfolio_via_monte_carlo(self) -> dict:
+class EfficientFrontierCalculator(ABC):
+	@abstractmethod
+	# The Efficient Frontier represents the set of portfolios that provide the highest expected return for
+	# a given level of risk or the lowest risk for a given level of expected return
+	def calculate_efficient_frontier_weights(self):
 		"""
-		Use Monte Carlo method to resample the efficient frontier inputs.
-		This method will optimize the weight allocations based on the Monte Carlo simulation
-		of expected returns and risks.
-
-		:return: The optimized weight allocations using Monte Carlo and respective portfolio performance
+		:return: asset weights
 		"""
-		# Define the number of simulations
-		num_portfolios = 10000
-		results_array = np.zeros((3, num_portfolios))
+		pass
 
-		for i in range(num_portfolios):
-			# Generate random weights
-			random_weights = np.random.random(len(self.tickers))
-			random_weights /= np.sum(random_weights)
-
-			# Expected portfolio return
-			expected_return = np.dot(self.mu, random_weights)
-
-			# Expected portfolio volatility
-			expected_volatility = np.sqrt(np.dot(random_weights.T, np.dot(self.Sigma, random_weights)))
-
-			# Sharpe ratio
-			sharpe_ratio = expected_return / expected_volatility
-
-			# Store results
-			results_array[0, i] = expected_return
-			results_array[1, i] = expected_volatility
-			results_array[2, i] = sharpe_ratio
-
-		# Extract the portfolio with the highest Sharpe ratio
-		max_sharpe_idx = np.argmax(results_array[2])
-
-		# Extract the allocation of the max Sharpe ratio portfolio
-		optimal_weights = np.random.random(len(self.tickers))
-		optimal_weights /= np.sum(optimal_weights)
-
-		optimal_weights = np.round(optimal_weights, 4)
-
-		weights_dict = dict(zip(self.tickers, optimal_weights))
-
-		return {
-			"weights": weights_dict,
-			"expected_return": results_array[0, max_sharpe_idx],
-			"expected_volatility": results_array[1, max_sharpe_idx],
-			"sharpe_ratio": results_array[2, max_sharpe_idx],
-		}
+	def calculate_efficient_frontier_performance(self) -> tuple[float, float, float]:
+		"""
+		:return: expected return, volatility, Sharpe ratio
+		"""
+		pass
 
 
+class MeanVarianceOptimizationCalculator(EfficientFrontierCalculator):  # Original MPT
+
+	def __init__(self, data: pd.DataFrame):
+		self._data = data
+		self._mu = MeanHistoricalReturnCalculator().calculate_expected_return(data)
+		self._Sigma = SampleCovarianceCalculator().calculate_covariance(data)
+		self._ef = None
+
+	def calculate_efficient_frontier_weights(self):
+		if self._ef is None:
+			self._ef = EfficientFrontier(self._mu, self._Sigma)
+		raw_weights = self._ef.max_sharpe()
+		cleaned_weights = self._ef.clean_weights()
+		return cleaned_weights
+
+	def calculate_efficient_frontier_performance(self) -> tuple[float, float, float]:
+		if self._ef is None:
+			raise ValueError(
+				"Efficient Frontier weights not calculated. Call calculate_efficient_frontier_weights() first.")
+		return self._ef.portfolio_performance()

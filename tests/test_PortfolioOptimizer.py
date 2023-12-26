@@ -1,50 +1,67 @@
-# test_portfolio_optimizer.py
-import pytest
-from PortfolioOptimizer.PortfolioOptimizer import PortfolioOptimizer
+import unittest
+from unittest.mock import patch
+import pandas as pd
+import numpy as np
+import yfinance as yf
+from PortfolioOptimizer.PortfolioOptimizer import (YFinanceDataProvider, MeanHistoricalReturnCalculator,
+                       SampleCovarianceCalculator, MeanVarianceOptimizationCalculator)
 
-# Sample data for tests
-tickers = ['AAPL', 'TSLA', 'BTC']
-start_date = "2021-01-01"
-end_date = "2022-01-01"
-total_portfolio_value = 10000
+data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2020-01-01", end="2021-01-01")['Adj Close']
 
-@pytest.fixture
-def optimizer():
-    """Fixture to create a PortfolioOptimizer object for testing"""
-    return PortfolioOptimizer(tickers, start_date, end_date, total_portfolio_value)
 
-def test_init(optimizer):
-    """Test the initialization and attributes of PortfolioOptimizer"""
-    assert optimizer.tickers is not None
-    assert optimizer.start_date == start_date
-    assert optimizer.end_date == end_date
-    assert optimizer.total_portfolio_value == total_portfolio_value
+class TestMeanHistoricalReturnCalculator(unittest.TestCase):
 
-def test_compute_optimized_portfolio_data(optimizer):
-    """Test the portfolio computation method"""
-    data = optimizer.compute_optimized_portfolio_data()
-    assert "weights" in data
-    assert "sharpe_ratio" in data
-    assert "expected_annual_return" in data
-    print(data)
+    def test_calculate_expected_return(self):
+        # Setup
+        calculator = MeanHistoricalReturnCalculator()
 
-def test_get_concrete_allocation(optimizer):
-    """Test concrete allocation calculation"""
-    # Example: Assuming the method requires weights as input
-    weights = {'AAPL': 0.5, 'TSLA': 0.3, 'BTC': 0.2}  # Example weights
-    allocation = optimizer.get_concrete_allocation(weights)
-    assert "concrete_allocation" in allocation
-    assert "funds_remaining" in allocation
-    # Add more assertions to validate the allocation details
+        # Execute
+        result = calculator.calculate_expected_return(data)
 
-def test_compute_optimized_portfolio_via_monte_carlo(optimizer):
-    """Test the Monte Carlo optimization method"""
-    results = optimizer.compute_optimized_portfolio_via_monte_carlo()
-    assert "weights" in results
-    assert "expected_return" in results
-    assert "expected_volatility" in results
-    assert "sharpe_ratio" in results
-    print(results)
+        # Assert
+        self.assertEqual(len(result), len(data.columns))
 
-if __name__ == "__main__":
-    pytest.main()
+
+class TestSampleCovarianceCalculator(unittest.TestCase):
+
+    def test_calculate_covariance(self):
+        # Setup
+        calculator = SampleCovarianceCalculator()
+
+        # Execute
+        result = calculator.calculate_covariance(data)
+
+        # Assert
+        self.assertEqual(result.shape, (len(data.columns), len(data.columns)))
+        print(result)
+
+
+class TestMeanVarianceOptimizationCalculator(unittest.TestCase):
+
+    def test_efficient_frontier_weights(self):
+        # Setup
+        calculator = MeanVarianceOptimizationCalculator(data)
+
+        # Execute
+        weights = calculator.calculate_efficient_frontier_weights()
+
+        # Assert
+        self.assertTrue(all(isinstance(weight, float) for weight in weights.values()))
+        print(weights)
+
+    def test_efficient_frontier_performance(self):
+        # Setup
+        calculator = MeanVarianceOptimizationCalculator(data)
+        calculator.calculate_efficient_frontier_weights()
+
+        # Execute
+        performance = calculator.calculate_efficient_frontier_performance()
+
+        # Assert
+        self.assertEqual(len(performance), 3)  # expected return, volatility, Sharpe ratio
+        print(performance)
+
+# More tests could be added for different scenarios, input data types, and error cases.
+
+if __name__ == '__main__':
+    unittest.main()
