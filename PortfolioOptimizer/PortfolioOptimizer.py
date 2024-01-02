@@ -3,7 +3,7 @@ from pypfopt import risk_models, expected_returns
 from pypfopt.discrete_allocation import DiscreteAllocation, get_latest_prices
 import logging
 from abc import ABC, abstractmethod
-import getFamaFrenchFactors as IloveMyGfPia
+import getFamaFrenchFactors as gff
 
 import numpy as np
 
@@ -67,16 +67,27 @@ class SampleCovarianceCalculator(CovarianceCalculator):
 
 
 class CapmCalculator(ExpectedReturnCalculator):
-    def __init__(self):
-        self.ff3_monthly = pd.DataFrame(IloveMyGfPia.famaFrench3Factor(frequency='m'))
-        self.ff3_monthly.rename(columns={"date_ff_factors": 'Date'}, inplace=True)
-        self.ff3_monthly.set_index('Date', inplace=True)
 
     def calculate_risk_free_rate(self):
-        return self.ff3_monthly['RF'].mean()
+        risk_free_rate = yf.download('^TNX', period='2y')['Adj Close']
+        return risk_free_rate.iloc[-1]/100
 
-    def calculate_market_premium(self):
-        return self.ff3_monthly['Mkt-RF'].mean()
+    def calculate_market_return(self):
+        # Downloading the past 5 years of daily Adjusted Close prices for the S&P 500
+        market_data = yf.download('^GSPC', period='5y')['Adj Close']
+
+        # Calculating daily returns from daily adjusted close prices
+        daily_returns = market_data.pct_change().dropna()
+
+        # Calculating the average annualized market return
+        # 252 is the typical number of trading days in a year
+        avg_daily_return = daily_returns.mean()
+        annualized_return = (1 + avg_daily_return) ** 252 - 1
+
+        return annualized_return
+
+    def calculate_market_premium(self):  # Mkt - Rf
+        return self.calculate_market_return() - self.calculate_risk_free_rate()
 
     def calculate_beta(self, tickers):
         """

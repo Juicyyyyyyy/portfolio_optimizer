@@ -3,8 +3,7 @@ from unittest.mock import patch
 import pandas as pd
 import numpy as np
 import yfinance as yf
-from PortfolioOptimizer.PortfolioOptimizer import (YFinanceDataProvider, MeanHistoricalReturnCalculator,
-                       SampleCovarianceCalculator, MeanVarianceOptimizationCalculator, CapmCalculator)
+from PortfolioOptimizer.PortfolioOptimizer import CapmCalculator
 
 tickers = ["AAPL", "MSFT", "GOOGL"]
 
@@ -17,6 +16,10 @@ class TestPortfolioOptimizer(unittest.TestCase):
     def test_calculate_risk_free_rate(self):
         risk_free_rate = capm.calculate_risk_free_rate()
         print("The risk free rate is : " + str(risk_free_rate))
+
+    def test_calculate_market_return(self):
+        market_return = capm.calculate_market_return()
+        print("The market return is : " + str(market_return))
 
     def test_calculate_market_premium(self):
         market_premium = capm.calculate_market_premium()
