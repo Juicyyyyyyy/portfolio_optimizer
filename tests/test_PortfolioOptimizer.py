@@ -9,7 +9,7 @@ from PortfolioOptimizer.PortfolioOptimizer import (YFinanceDataProvider, MeanHis
 data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2020-01-01", end="2021-01-01")['Adj Close']
 
 
-class TestMeanHistoricalReturnCalculator(unittest.TestCase):
+class TestPortfolioOptimizer(unittest.TestCase):
 
     def test_calculate_expected_return(self):
         # Setup
@@ -21,9 +21,6 @@ class TestMeanHistoricalReturnCalculator(unittest.TestCase):
         # Assert
         self.assertEqual(len(result), len(data.columns))
 
-
-class TestSampleCovarianceCalculator(unittest.TestCase):
-
     def test_calculate_covariance(self):
         # Setup
         calculator = SampleCovarianceCalculator()
@@ -34,9 +31,6 @@ class TestSampleCovarianceCalculator(unittest.TestCase):
         # Assert
         self.assertEqual(result.shape, (len(data.columns), len(data.columns)))
         print(result)
-
-
-class TestMeanVarianceOptimizationCalculator(unittest.TestCase):
 
     def test_efficient_frontier_weights(self):
         # Setup
