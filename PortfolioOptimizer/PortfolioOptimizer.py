@@ -1,46 +1,26 @@
 from pypfopt.efficient_frontier import EfficientFrontier
-from pypfopt import risk_models, expected_returns
-from pypfopt.discrete_allocation import DiscreteAllocation, get_latest_prices
-import logging
-from abc import ABC, abstractmethod
-import getFamaFrenchFactors as gff
-
-import numpy as np
-
 import yfinance as yf
 import pandas as pd
 from typing import List, Any, Dict
 
 import datetime
 
-from ExpectedReturnCalculator import MeanHistoricalReturnCalculator
+from ExpectedReturnCalculator import MeanHistoricalReturnCalculator, CapmCalculator
 from CovarianceCalculator import SampleCovarianceCalculator
 
 
-class EfficientFrontierCalculator(ABC):
-    @abstractmethod
-    # The Efficient Frontier represents the set of portfolios that provide the highest expected return for
-    # a given level of risk or the lowest risk for a given level of expected return
-    def calculate_efficient_frontier_weights(self):
-        """
-		:return: asset weights
-		"""
-        pass
-
-    def calculate_efficient_frontier_performance(self) -> tuple[float, float, float]:
-        """
-		:return: expected return, volatility, Sharpe ratio
-		"""
-        pass
-
-
-class MeanVarianceOptimizationCalculator(EfficientFrontierCalculator):  # Original MPT
-
-    def __init__(self, data: pd.DataFrame):
+class PortfolioOptimizer:
+    def __init__(self, data: pd.DataFrame, mu="capm"):
         self._data = data
-        self._mu = MeanHistoricalReturnCalculator().calculate_expected_return(data)
+        if mu == "capm":
+            self._mu = CapmCalculator().calculate_expected_return(data.columns.tolist())
+        elif mu == "mean historical return":
+            self._mu = MeanHistoricalReturnCalculator().calculate_expected_return(data)
         self._Sigma = SampleCovarianceCalculator().calculate_covariance(data)
         self._ef = None
+
+    def get_data(self):
+        return self._data
 
     def calculate_efficient_frontier_weights(self):
         if self._ef is None:

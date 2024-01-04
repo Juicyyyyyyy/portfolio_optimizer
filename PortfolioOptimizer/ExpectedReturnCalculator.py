@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from pypfopt import risk_models, expected_returns
+
 import numpy as np
 import yfinance as yf
 import pandas as pd
@@ -76,4 +77,6 @@ class CapmCalculator(ExpectedReturnCalculator):
             # CAPM formula: Expected Return = Risk-Free Rate + Beta*(Market Premium)
             expected_returns[ticker] = risk_free_rate + beta * market_premium
 
-        return expected_returns
+        series_expected_returns = pd.Series(expected_returns, name='Expected Return')
+
+        return series_expected_returns
