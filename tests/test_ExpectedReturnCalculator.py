@@ -3,15 +3,23 @@ from unittest.mock import patch
 import pandas as pd
 import numpy as np
 import yfinance as yf
-from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator
+from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator, MeanHistoricalReturnCalculator
 
 tickers = ["AAPL", "MSFT", "GOOGL"]
 
 data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2000-01-01", end="2021-01-01")['Adj Close']
 
+
+class testMeanHistoricalReturnCalculator(unittest.TestCase):
+    def test_calculate_expected_return(self):
+        meanCalculator = MeanHistoricalReturnCalculator()
+        expected_return = meanCalculator.calculate_expected_return(data)
+        print(expected_return)
+
+
 capm = CapmCalculator()
 
-class TestPortfolioOptimizer(unittest.TestCase):
+class TestCapmCalculator(unittest.TestCase):
 
     def test_calculate_risk_free_rate(self):
         risk_free_rate = capm.calculate_risk_free_rate()

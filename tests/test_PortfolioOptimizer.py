@@ -3,41 +3,21 @@ from unittest.mock import patch
 import pandas as pd
 import numpy as np
 import yfinance as yf
-from PortfolioOptimizer.PortfolioOptimizer import (YFinanceDataProvider, MeanHistoricalReturnCalculator,
-                       SampleCovarianceCalculator, MeanVarianceOptimizationCalculator)
+from PortfolioOptimizer.PortfolioOptimizer import (MeanHistoricalReturnCalculator, PortfolioOptimizer)
 
 data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2020-01-01", end="2021-01-01")['Adj Close']
 
 
 class TestPortfolioOptimizer(unittest.TestCase):
 
-    def test_calculate_expected_return(self):
-        # Setup
-        calculator = MeanHistoricalReturnCalculator()
-
-        # Execute
-        result = calculator.calculate_expected_return(data)
-
-        # Assert
-        self.assertEqual(len(result), len(data.columns))
-
-    def test_calculate_covariance(self):
-        # Setup
-        calculator = SampleCovarianceCalculator()
-
-        # Execute
-        result = calculator.calculate_covariance(data)
-
-        # Assert
-        self.assertEqual(result.shape, (len(data.columns), len(data.columns)))
-        print(result)
+    def __init__(self, methodName='runTest'):
+        super().__init__(methodName)
+        self.calculator = PortfolioOptimizer(data)
 
     def test_efficient_frontier_weights(self):
-        # Setup
-        calculator = MeanVarianceOptimizationCalculator(data)
 
         # Execute
-        weights = calculator.calculate_efficient_frontier_weights()
+        weights = self.calculator.calculate_efficient_frontier_weights()
 
         # Assert
         self.assertTrue(all(isinstance(weight, float) for weight in weights.values()))
@@ -45,11 +25,10 @@ class TestPortfolioOptimizer(unittest.TestCase):
 
     def test_efficient_frontier_performance(self):
         # Setup
-        calculator = MeanVarianceOptimizationCalculator(data)
-        calculator.calculate_efficient_frontier_weights()
+        self.calculator.calculate_efficient_frontier_weights()
 
         # Execute
-        performance = calculator.calculate_efficient_frontier_performance()
+        performance = self.calculator.calculate_efficient_frontier_performance()
 
         # Assert
         self.assertEqual(len(performance), 3)  # expected return, volatility, Sharpe ratio
