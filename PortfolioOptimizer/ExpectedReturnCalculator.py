@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
-from pypfopt import risk_models, expected_returns
+from pypfopt import expected_returns
+from MarketDataProvider import MarketDataProvider as md
 
 import numpy as np
 import yfinance as yf
 import pandas as pd
 from typing import List, Any, Dict
-import datetime
 
 
 class ExpectedReturnCalculator(ABC):
@@ -25,14 +25,12 @@ class MeanHistoricalReturnCalculator(ExpectedReturnCalculator):
 
 class CapmCalculator(ExpectedReturnCalculator):
 
-    def calculate_risk_free_rate(self):
-        risk_free_rate = yf.download('^TNX', period='2y')['Adj Close']
+    def calculate_risk_free_rate(self) -> float:
+        risk_free_rate = md.get_data('^TNX', period='2y')
         return risk_free_rate.iloc[-1] / 100
 
-    def calculate_market_return(self):
-        # Downloading the past 5 years of daily Adjusted Close prices for the S&P 500
-        market_data = yf.download('^GSPC', period='5y')['Adj Close']
-
+    def calculate_market_return(self) -> float:
+        market_data = md.get_data('^GSPC', period='5y')
         # Calculating daily returns from daily adjusted close prices
         daily_returns = market_data.pct_change().dropna()
 
@@ -43,21 +41,21 @@ class CapmCalculator(ExpectedReturnCalculator):
 
         return annualized_return
 
-    def calculate_market_premium(self):  # Mkt - Rf
+    def calculate_market_premium(self) -> float:  # Mkt - Rf
         return self.calculate_market_return() - self.calculate_risk_free_rate()
 
-    def calculate_beta(self, tickers):
+    def calculate_beta(self, tickers) -> dict:
         """
 
         :param tickers:
         :return:
         """
         betas = {}
-        market_data = yf.download('^GSPC', period='5y')['Adj Close']
+        market_data = md.get_data('^GSPC', period='5y')
         market_returns = market_data.pct_change().dropna()
 
         for ticker in tickers:
-            asset_data = yf.download(ticker, period='5y')['Adj Close']
+            asset_data = md.get_data(ticker, period='5y')
             asset_returns = asset_data.pct_change().dropna()
 
             covariance = np.cov(asset_returns, market_returns)
