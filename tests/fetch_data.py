@@ -1,13 +1,10 @@
 # fetch_and_store_data.py
 
 import yfinance as yf
-import pandas as pd
+from PortfolioOptimizer.MarketDataProvider import MarketDataProvider as md
 
-# Expanded list of tickers
-tickers = ["AAPL", "MSFT", "GOOGL"]
+risk_free_rate = yf.download('^TNX', period='2y')['Adj Close']
+md = md.get_data('^TNX', period='2y')
 
-# Fetching data for the tickers for a specific time range
-data = yf.download(tickers, start="2020-01-01", end="2021-01-01")['Adj Close']
-
-# Saving the data to a CSV file
-data.to_csv("historical_data.csv")
+print("risk free rate from yf download" + str(risk_free_rate))
+print("risk free rate from MarketDataProvider" + str(md))

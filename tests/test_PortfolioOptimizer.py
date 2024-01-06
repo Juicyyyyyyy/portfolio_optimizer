@@ -3,7 +3,7 @@ from unittest.mock import patch
 import pandas as pd
 import numpy as np
 import yfinance as yf
-from PortfolioOptimizer.PortfolioOptimizer import (MeanHistoricalReturnCalculator, PortfolioOptimizer)
+from PortfolioOptimizer.MeanOptimizer import (MeanHistoricalReturnCalculator, PortfolioOptimizer)
 
 data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2020-01-01", end="2021-01-01")['Adj Close']
 

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from pypfopt import expected_returns
-from MarketDataProvider import MarketDataProvider as md
+from PortfolioOptimizer.MarketDataProvider import MarketDataProvider as md
 
 import numpy as np
 import yfinance as yf
