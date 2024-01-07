@@ -26,10 +26,20 @@ class MeanHistoricalReturnCalculator(ExpectedReturnCalculator):
 class CapmCalculator(ExpectedReturnCalculator):
 
     def calculate_risk_free_rate(self) -> float:
+        """
+        Formula : Risk-free rate = Yield of 10-year U.S. Treasury Note
+
+        :return: the latest 10-year US Treasury Note yield as a decimal
+        """
         risk_free_rate = md.get_data('^TNX', period='2y')
         return risk_free_rate.iloc[-1] / 100
 
     def calculate_market_return(self) -> float:
+        """
+        formula : E(Rm) = Average annual return of the market benchmark (S&P 500 here)
+
+        :return: the average annualized return of the sp500 on the last 5 years
+        """
         market_data = md.get_data('^GSPC', period='5y')
         # Calculating daily returns from daily adjusted close prices
         daily_returns = market_data.pct_change().dropna()
@@ -46,9 +56,10 @@ class CapmCalculator(ExpectedReturnCalculator):
 
     def calculate_beta(self, tickers) -> dict:
         """
+        Formula : beta = covariance(stock, market) / variance(market)
 
-        :param tickers:
-        :return:
+        :param tickers: list of tickers
+        :return: A dictionary with tickers as keys and their corresponding beta values as values
         """
         betas = {}
         market_data = md.get_data('^GSPC', period='5y')
@@ -65,7 +76,13 @@ class CapmCalculator(ExpectedReturnCalculator):
         return betas
 
     def calculate_expected_return(self, tickers):
-        # Calculate expected return using the CAPM formula for each ticker
+        """
+        Calculate expected return using the CAPM formula for each ticker
+        Formula : E(Ri) = Rf + beta * (E(Rm) - Rf)
+
+        :param tickers: list of tickers
+        :return: a panda series composed of each ticker and their corresponding expected return
+        """
         expected_returns = {}
         risk_free_rate = self.calculate_risk_free_rate()
         market_premium = self.calculate_market_premium()
