@@ -4,8 +4,8 @@ import importlib
 import os
 
 # Set appearance and color theme
-customtkinter.set_appearance_mode("System")
-customtkinter.set_default_color_theme("blue")
+customtkinter.set_appearance_mode("System")  # Consider allowing users to toggle between light and dark mode
+customtkinter.set_default_color_theme("blue")  # Consider more modern color schemes or allowing user preference
 
 class PortfolioOptimizerApp(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
@@ -13,7 +13,7 @@ class PortfolioOptimizerApp(customtkinter.CTk):
 
         # Configure window
         self.title("Portfolio Optimizer")
-        self.geometry("1000x600")
+        self.geometry("800x400")
 
         # Container for all the pages
         container = customtkinter.CTkFrame(self)
@@ -24,22 +24,18 @@ class PortfolioOptimizerApp(customtkinter.CTk):
         self.frames = {}
 
         # Dynamically load all pages from the 'pages' directory
-        pages_path = "./views"  # Adjust this path if necessary
+        pages_path = "./views"
         for filename in os.listdir(pages_path):
             if filename.endswith(".py") and not filename.startswith("__"):
-                # Format module name for import
-                module_name = f"views.{filename[:-3]}"  # Remove '.py' from file name
-                # Import the module
+                module_name = f"views.{filename[:-3]}"
                 page_module = importlib.import_module(module_name)
-                # Get the class (assuming class name is the same as file name)
                 class_name = filename[:-3]
                 page_class = getattr(page_module, class_name)
-                # Initialize the page and add to frames
                 frame = page_class(parent=container, controller=self)
                 self.frames[class_name] = frame
                 frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("Home")  # or the name of the default page you want to show first
+        self.show_frame("Home")
 
     def show_frame(self, page_name):
         frame = self.frames[page_name]
