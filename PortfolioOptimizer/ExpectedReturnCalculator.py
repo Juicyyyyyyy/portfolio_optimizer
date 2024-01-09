@@ -27,11 +27,11 @@ class CapmCalculator(ExpectedReturnCalculator):
 
     def calculate_risk_free_rate(self) -> float:
         """
-        Formula : Risk-free rate = Yield of 10-year U.S. Treasury Note
+        Formula : Risk-free rate = Yield of 3-month U.S. Treasury Bill
 
-        :return: the latest 10-year US Treasury Note yield as a decimal
+        :return: the latest 3-month US Treasury Bill yield as a decimal
         """
-        risk_free_rate = md.get_data('^TNX', period='2y')
+        risk_free_rate = md.get_data('^IRX', period='2y')  # Update the ticker symbol to ^IRX
         return risk_free_rate.iloc[-1] / 100
 
     def calculate_market_return(self) -> float:
