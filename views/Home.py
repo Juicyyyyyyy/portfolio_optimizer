@@ -1,4 +1,5 @@
 from PortfolioOptimizer.GptBasedFunctions import GptBasedFunctions
+from app import PortfolioOptimizerApp
 
 from datetime import datetime, timedelta
 import customtkinter
@@ -9,6 +10,7 @@ class Home(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
 
+        self.ticker_data = None
         self.gpt = GptBasedFunctions()
 
         # Divide the main frame into two columns
@@ -44,7 +46,16 @@ class Home(customtkinter.CTkFrame):
         self.label_investment_timeframe = customtkinter.CTkLabel(self.ai_frame, text="Investment Timeframe (short term, long term):")
         self.entry_investment_timeframe = customtkinter.CTkEntry(self.ai_frame, width=200, placeholder_text="long term")
         self.generate_button = customtkinter.CTkButton(self.ai_frame, text="Generate", command=self.generate_tickers)
+
         self.ticker_display = customtkinter.CTkLabel(self.ai_frame, text="Generated Tickers will appear here", wraplength=500)
+
+        self.label_risk_tolerance.pack(pady=(10, 0))  # Add padding on top and bottom
+        self.entry_risk_tolerance.pack(pady=(5, 0))  # pady(top_padding, bottom_padding)
+        self.label_investment_area.pack(pady=(10, 0))
+        self.entry_investment_area.pack(pady=(5, 0))
+        self.label_investment_timeframe.pack(pady=(10, 0))
+        self.entry_investment_timeframe.pack(pady=(5, 0))
+        self.generate_button.pack(pady=(20, 10), padx=20)  # Increase padding around the button
 
         # Packing the AI-specific widgets into the frame
         self.label_risk_tolerance.pack()
@@ -82,7 +93,8 @@ class Home(customtkinter.CTkFrame):
         # Option Menu for Financial Model in column 2
         self.label_fin_model = customtkinter.CTkLabel(self.column2, text="Choose Financial Model:")
         self.label_fin_model.pack(pady=2)
-        self.optionmenu_fin_model = customtkinter.CTkOptionMenu(self.column2, values=["EfficientFrontier", "Black Litterman", "Monte Carlo"])
+        self.models = ["EfficientFrontier", "Black Litterman", "Monte Carlo"]
+        self.optionmenu_fin_model = customtkinter.CTkOptionMenu(self.column2, values=self.models)
         self.optionmenu_fin_model.pack(pady=2)
 
         # Continue Button with enhanced style in column 2
@@ -113,10 +125,13 @@ class Home(customtkinter.CTkFrame):
         self.ticker_display.configure(text="Generated Tickers: " + ", ".join(generated_tickers))
 
     def on_continue(self):
+        app = PortfolioOptimizerApp()
         choice = self.user_choice.get()
         if choice == "manual":
-            ticker_data = self.entry_tickers.get()
+            self.ticker_data = self.entry_tickers.get()
         elif choice == "ai":
-            ticker_data = self.ticker_display['text'].split(": ")[1]
-        print("Processing with tickers:", ticker_data)
+            self.ticker_data = self.ticker_display['text'].split(": ")[1]
+
+        chosenModel = self.optionmenu_fin_model.get()
+        app.show_frame(chosenModel)  # not working needs to be corrected
 

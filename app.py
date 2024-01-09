@@ -5,7 +5,8 @@ import os
 
 # Set appearance and color theme
 customtkinter.set_appearance_mode("System")  # Consider allowing users to toggle between light and dark mode
-customtkinter.set_default_color_theme("blue")  # Consider more modern color schemes or allowing user preference
+customtkinter.set_default_color_theme("blue")
+
 
 class PortfolioOptimizerApp(customtkinter.CTk):
     def __init__(self, *args, **kwargs):
@@ -13,7 +14,7 @@ class PortfolioOptimizerApp(customtkinter.CTk):
 
         # Configure window
         self.title("Portfolio Optimizer")
-        self.geometry("800x400")
+        self.geometry("800x500")
 
         # Container for all the pages
         container = customtkinter.CTkFrame(self)
@@ -40,6 +41,7 @@ class PortfolioOptimizerApp(customtkinter.CTk):
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
+
 
 if __name__ == "__main__":
     app = PortfolioOptimizerApp()
