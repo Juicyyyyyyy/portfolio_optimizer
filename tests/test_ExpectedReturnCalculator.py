@@ -7,7 +7,7 @@ from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator, MeanHist
 
 tickers = ["AAPL", "MSFT", "GOOGL"]
 
-data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2000-01-01", end="2021-01-01")['Adj Close']
+data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2019-01-01", end="2024-01-01")['Adj Close']
 
 
 class testMeanHistoricalReturnCalculator(unittest.TestCase):
@@ -17,7 +17,11 @@ class testMeanHistoricalReturnCalculator(unittest.TestCase):
         print(expected_return)
 
 
-capm = CapmCalculator()
+first_date = data.index[0].date()
+last_date = data.index[-1].date()
+
+capm = CapmCalculator(start_date=first_date, end_date=last_date)
+
 
 class TestCapmCalculator(unittest.TestCase):
 

@@ -3,16 +3,16 @@ from unittest.mock import patch
 import pandas as pd
 import numpy as np
 import yfinance as yf
-from PortfolioOptimizer.MeanOptimizer import (MeanHistoricalReturnCalculator, PortfolioOptimizer)
+from PortfolioOptimizer.EfficientFrontierCalculator import EfficientFrontierCalculator
 
-data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2020-01-01", end="2021-01-01")['Adj Close']
+data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2017-01-01", end="2021-01-01")['Adj Close']
 
 
 class TestPortfolioOptimizer(unittest.TestCase):
 
     def __init__(self, methodName='runTest'):
         super().__init__(methodName)
-        self.calculator = PortfolioOptimizer(data)
+        self.calculator = EfficientFrontierCalculator(data)
 
     def test_efficient_frontier_weights(self):
 

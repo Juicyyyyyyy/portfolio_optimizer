@@ -5,15 +5,15 @@ from typing import List, Any, Dict
 
 import datetime
 
-from ExpectedReturnCalculator import MeanHistoricalReturnCalculator, CapmCalculator
-from CovarianceCalculator import SampleCovarianceCalculator
+from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator, MeanHistoricalReturnCalculator
+from PortfolioOptimizer.CovarianceCalculator import SampleCovarianceCalculator
 
 
-class PortfolioOptimizer:
+class EfficientFrontierCalculator:
     def __init__(self, data: pd.DataFrame, mu="capm"):
         self._data = data
         if mu == "capm":
-            self._mu = CapmCalculator().calculate_expected_return(data.columns.tolist())
+            self._mu = CapmCalculator(start_date=data.index[0], end_date=data.index[-1]).calculate_expected_return(data.columns.tolist())
         elif mu == "mean historical return":
             self._mu = MeanHistoricalReturnCalculator().calculate_expected_return(data)
         self._Sigma = SampleCovarianceCalculator().calculate_covariance(data)

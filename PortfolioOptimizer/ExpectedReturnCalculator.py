@@ -12,9 +12,9 @@ class ExpectedReturnCalculator(ABC):
     @abstractmethod
     def calculate_expected_return(self, data: pd.DataFrame) -> Any:
         """
-		Calculate the expected returns.
-		:param data: Historical price data as panda DataFrame
-		"""
+        Calculate the expected returns.
+        :param data: Historical price data as panda DataFrame
+        """
         pass
 
 
@@ -24,6 +24,9 @@ class MeanHistoricalReturnCalculator(ExpectedReturnCalculator):
 
 
 class CapmCalculator(ExpectedReturnCalculator):
+    def __init__(self, start_date, end_date):
+        self.start_date = start_date
+        self.end_date = end_date
 
     def calculate_risk_free_rate(self) -> float:
         """
@@ -38,9 +41,9 @@ class CapmCalculator(ExpectedReturnCalculator):
         """
         formula : E(Rm) = Average annual return of the market benchmark (S&P 500 here)
 
-        :return: the average annualized return of the sp500 on the last 5 years
+        :return: the average annualized return of the sp500 on the same years as the input data
         """
-        market_data = md.get_data('^GSPC', period='5y')
+        market_data = md.get_data('^GSPC', start_date=self.start_date, end_date=self.end_date)
         # Calculating daily returns from daily adjusted close prices
         daily_returns = market_data.pct_change().dropna()
 
@@ -54,23 +57,28 @@ class CapmCalculator(ExpectedReturnCalculator):
     def calculate_market_premium(self) -> float:  # Mkt - Rf
         return self.calculate_market_return() - self.calculate_risk_free_rate()
 
-    def calculate_beta(self, tickers) -> dict:
-        """
-        Formula : beta = covariance(stock, market) / variance(market)
-
-        :param tickers: list of tickers
-        :return: A dictionary with tickers as keys and their corresponding beta values as values
-        """
+    def calculate_beta(self, tickers: List[str]) -> Dict[str, float]:
         betas = {}
-        market_data = md.get_data('^GSPC', period='5y')
-        market_returns = market_data.pct_change().dropna()
+        # Fetch and resample market data to monthly
+        market_data = md.get_data('^GSPC', start_date=self.start_date, end_date=self.end_date)
+        monthly_market_data = market_data.resample('M').last()
+        monthly_market_returns = monthly_market_data.pct_change().dropna()
 
         for ticker in tickers:
-            asset_data = md.get_data(ticker, period='5y')
-            asset_returns = asset_data.pct_change().dropna()
+            # Fetch and resample stock data to monthly
+            stock_data = md.get_data(ticker, start_date=self.start_date, end_date=self.end_date)
+            monthly_stock_data = stock_data.resample('M').last()
+            monthly_stock_returns = monthly_stock_data.pct_change().dropna()
 
-            covariance = np.cov(asset_returns, market_returns)
-            beta = covariance[0, 1] / covariance[1, 1]
+            # Aligning monthly stock returns with market returns
+            aligned_stock, aligned_market = monthly_stock_returns.align(monthly_market_returns, join='inner')
+
+            # Calculating covariance and variance
+            covariance = np.cov(aligned_stock, aligned_market)[0, 1]
+            market_variance = np.var(aligned_market)
+
+            # Calculating beta
+            beta = covariance / market_variance
             betas[ticker] = beta
 
         return betas
