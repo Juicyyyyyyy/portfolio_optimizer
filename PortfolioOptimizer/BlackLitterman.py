@@ -16,7 +16,9 @@ class BlackLitterman:
         # The lower the delta is the more influence the investor’s views has impact on the weights returned
         self.tickers = tickers
         self.total_portfolio_value = total_portfolio_value
-        self.prior = CapmCalculator().calculate_expected_return(tickers)  # pi represents the equilibrium expected
+        first_date = self.data.index[0].date()
+        last_date = self.data.index[-1].date()
+        self.prior = CapmCalculator(first_date, last_date).calculate_expected_return(tickers)  # pi represents the equilibrium expected
         # returns of the assets in the market
 
         self.P, self.Q = self.user_input_to_pq(views)
@@ -25,22 +27,22 @@ class BlackLitterman:
 
     def user_input_to_pq(self, views):
         """
-		Convert user inputs into P and Q matrices for the Black-Litterman model.
+        Convert user inputs into P and Q matrices for the Black-Litterman model.
 
-		:param views: List of dictionaries containing the user's views.
-		:return: P and Q matrices.
+        :param views: List of dictionaries containing the user's views.
+        :return: P and Q matrices.
 
-		assets = ['AssetA', 'AssetB', 'AssetC']
-		views = [
-			{'type': 'absolute', 'asset': 'AssetA', 'return': 0.05},
-			{'type': 'relative', 'asset1': 'AssetB', 'asset2': 'AssetC', 'difference': 0.02}
-		]
+        assets = ['AssetA', 'AssetB', 'AssetC']
+        views = [
+            {'type': 'absolute', 'asset': 'AssetA', 'return': 0.05},
+            {'type': 'relative', 'asset1': 'AssetB', 'asset2': 'AssetC', 'difference': 0.02}
+        ]
 
-		P, Q = user_input_to_pq(assets, views)
-		print("P Matrix:\n", P)
-		print("Q Matrix:\n", Q)
+        P, Q = user_input_to_pq(assets, views)
+        print("P Matrix:\n", P)
+        print("Q Matrix:\n", Q)
 
-		"""
+        """
 
         # Initialize P and Q
         P = np.zeros((len(views), len(self.tickers)))
@@ -66,12 +68,12 @@ class BlackLitterman:
 
     def set_omega_proportional_to_prior(self, tau=0.05):
         """
-		Sets the omega matrix proportional to the diagonal elements of the prior covariance matrix scaled by tau.
-		This approach assumes equal confidence in all views and scales the uncertainty by the variance of the assets.
+        Sets the omega matrix proportional to the diagonal elements of the prior covariance matrix scaled by tau.
+        This approach assumes equal confidence in all views and scales the uncertainty by the variance of the assets.
 
-		:param tau: A scaling factor for the variances, representing the uncertainty of the views.
-					A smaller tau indicates higher confidence in the views. Default is 0.05.
-		"""
+        :param tau: A scaling factor for the variances, representing the uncertainty of the views.
+                    A smaller tau indicates higher confidence in the views. Default is 0.05.
+        """
         if self.P is None:
             raise ValueError("P matrix (picking matrix for the views) must be set before setting omega.")
 
@@ -86,8 +88,8 @@ class BlackLitterman:
 
     def optimize_with_black_litterman(self):
         """
-		Optimizes the portfolio using the Black-Litterman model.
-		"""
+        Optimizes the portfolio using the Black-Litterman model.
+        """
 
         # Ensure that views have been set
         if self.P is None or self.Q is None:
