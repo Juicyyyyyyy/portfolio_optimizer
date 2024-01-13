@@ -38,6 +38,21 @@ class PortfolioOptimizerApp(customtkinter.CTk):
 
         self.show_frame("Home")
 
+        menubar = tkinter.Menu(self)
+
+        sidebar = customtkinter.CTkFrame(self, width=200, bg_color="#333")
+        sidebar.pack(side="left", fill="y")
+
+        # Sidebar "Home" button
+        home_button = customtkinter.CTkButton(sidebar, text="Home",
+                                              fg_color="#555", hover_color="#666",
+                                              text_color="white",
+                                              command=lambda: self.show_frame("Home"))
+        home_button.pack(pady=10, fill="x")
+
+        # Display the menu
+        self.config(menu=menubar)
+
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()

@@ -10,6 +10,8 @@ class Home(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
 
+        self.controller = controller
+
         self.ticker_data = None
         self.gpt = GptBasedFunctions()
 
@@ -93,7 +95,7 @@ class Home(customtkinter.CTkFrame):
         # Option Menu for Financial Model in column 2
         self.label_fin_model = customtkinter.CTkLabel(self.column2, text="Choose Financial Model:")
         self.label_fin_model.pack(pady=2)
-        self.models = ["EfficientFrontier", "Black Litterman", "Monte Carlo"]
+        self.models = ["EfficientFrontier", "BlackLitterman", "MonteCarlo"]
         self.optionmenu_fin_model = customtkinter.CTkOptionMenu(self.column2, values=self.models)
         self.optionmenu_fin_model.pack(pady=2)
 
@@ -132,6 +134,6 @@ class Home(customtkinter.CTkFrame):
         elif choice == "ai":
             self.ticker_data = self.ticker_display['text'].split(": ")[1]
 
-        chosenModel = self.optionmenu_fin_model.get()
-        app.show_frame(chosenModel)  # not working needs to be corrected
-
+        chosen_model = self.optionmenu_fin_model.get()
+        # go to the frame named chosenModel
+        self.controller.show_frame(chosen_model)
