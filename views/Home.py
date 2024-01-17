@@ -135,7 +135,7 @@ class Home(customtkinter.CTkFrame):
         if choice == "manual":
             self.ticker_data = self.entry_tickers.get().strip()
         elif choice == "ai":
-            generated_text = self.ticker_display['text']
+            generated_text = self.ticker_display.cget("text")
             self.ticker_data = generated_text.split(": ")[1] if ":" in generated_text else ""
 
         # Check if ticker data is empty
