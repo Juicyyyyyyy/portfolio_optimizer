@@ -1,3 +1,5 @@
+from tkinter import messagebox
+
 from PortfolioOptimizer.GptBasedFunctions import GptBasedFunctions
 from app import PortfolioOptimizerApp
 
@@ -126,14 +128,25 @@ class Home(customtkinter.CTkFrame):
         generated_tickers = self.gpt.generate_tickers(risk_tolerance, investment_area, investment_timeframe)
         self.ticker_display.configure(text="Generated Tickers: " + ", ".join(generated_tickers))
 
-    def on_continue(self):
-        app = PortfolioOptimizerApp()
-        choice = self.user_choice.get()
-        if choice == "manual":
-            self.ticker_data = self.entry_tickers.get()
-        elif choice == "ai":
-            self.ticker_data = self.ticker_display['text'].split(": ")[1]
 
+    def on_continue(self):
+        choice = self.user_choice.get()
+
+        if choice == "manual":
+            self.ticker_data = self.entry_tickers.get().strip()
+        elif choice == "ai":
+            generated_text = self.ticker_display['text']
+            self.ticker_data = generated_text.split(": ")[1] if ":" in generated_text else ""
+
+        # Check if ticker data is empty
+        if not self.ticker_data:
+            messagebox.showerror("Error", "Please enter or generate tickers before continuing.")
+            return
+
+        # Proceed to the next frame
         chosen_model = self.optionmenu_fin_model.get()
-        # go to the frame named chosenModel
+        if chosen_model == "BlackLitterman":
+            frame = self.controller.frames[chosen_model]
+            frame.set_tickers(self.ticker_data.split(', '))
         self.controller.show_frame(chosen_model)
+
