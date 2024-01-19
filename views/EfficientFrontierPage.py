@@ -6,7 +6,7 @@ import customtkinter
 from tkcalendar import DateEntry
 
 
-class EfficientFrontier(customtkinter.CTkFrame):
+class EfficientFrontierPage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller

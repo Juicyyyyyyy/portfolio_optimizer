@@ -36,7 +36,7 @@ class PortfolioOptimizerApp(customtkinter.CTk):
                 self.frames[class_name] = frame
                 frame.grid(row=0, column=0, sticky="nsew")
 
-        self.show_frame("Home")
+        self.show_frame("HomePage")
 
         menubar = tkinter.Menu(self)
 
@@ -47,7 +47,7 @@ class PortfolioOptimizerApp(customtkinter.CTk):
         home_button = customtkinter.CTkButton(sidebar, text="Home",
                                               fg_color="#555", hover_color="#666",
                                               text_color="white",
-                                              command=lambda: self.show_frame("Home"))
+                                              command=lambda: self.show_frame("HomePage"))
         home_button.pack(pady=10, fill="x")
 
         # Display the menu
@@ -56,6 +56,22 @@ class PortfolioOptimizerApp(customtkinter.CTk):
     def show_frame(self, page_name):
         frame = self.frames[page_name]
         frame.tkraise()
+
+    def get_home_page_tickers_list(self):
+        home_page = self.frames["HomePage"]
+        return home_page.tickers_list
+
+    def get_home_page_tickers_df(self):
+        home_page = self.frames["HomePage"]
+        return home_page.tickers_df
+
+    def get_home_page_start_date(self):
+        home_page = self.frames["HomePage"]
+        return home_page.start_date.get_date()
+
+    def get_home_page_end_date(self):
+        home_page = self.frames["HomePage"]
+        return home_page.end_date.get_date()
 
 
 if __name__ == "__main__":

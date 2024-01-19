@@ -1,9 +1,15 @@
 import customtkinter
+from PortfolioOptimizer.BlackLitterman import BlackLitterman
 
-class BlackLitterman(customtkinter.CTkFrame):
+class BlackLittermanPage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
+
+        self.start_date = None
+        self.end_date = None
+        self.tickers_list = None
+        self.tickers_df = None
 
         # Title for the BlackLitterman page
         self.label_title = customtkinter.CTkLabel(self, text="Black-Litterman Model", font=("Roboto Medium", -16))
@@ -19,6 +25,9 @@ class BlackLitterman(customtkinter.CTkFrame):
         # Placeholder for ticker widgets, to be filled in set_tickers
         self.ticker_widgets = []
 
+        # Dictionary to store references to outperform_dropdowns
+        self.outperform_dropdowns = {}
+
         # Button to proceed with the analysis
         self.analyze_button = customtkinter.CTkButton(self, text="Analyze", command=self.analyze)
         self.analyze_button.pack(pady=20)
@@ -32,7 +41,7 @@ class BlackLitterman(customtkinter.CTkFrame):
         customtkinter.CTkLabel(header_frame, text="Confidence(%)", font=("Roboto", -14)).pack(side="left", padx=90)
         header_frame.pack(fill="x", padx=20, pady=5)
 
-    def on_view_change(self, selection, ticker_frame, tickers):
+    def on_view_change(self, selection, ticker_frame, ticker):
         # Remove any existing outperform dropdown if it exists
         for widget in ticker_frame.winfo_children():
             if hasattr(widget, 'is_outperform_dropdown') and widget.is_outperform_dropdown:
@@ -40,10 +49,12 @@ class BlackLitterman(customtkinter.CTkFrame):
 
         # If "Will Outperform (->) by" is selected, add another dropdown
         if selection == "Will Outperform (->) by":
-            outperform_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=tickers)
-            outperform_dropdown.is_outperform_dropdown = True  # Tagging the dropdown
-            outperform_dropdown.pack(side="left", padx=10,
-                                     after=ticker_frame.winfo_children()[2])  # Place after value_entry
+            outperform_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=self.controller.get_home_page_tickers_list(), name='outperform_dropdown')
+            outperform_dropdown.is_outperform_dropdown = True
+            outperform_dropdown.pack(side="left", padx=10, after=ticker_frame.winfo_children()[1])
+
+            # Store reference to outperform_dropdown
+            self.outperform_dropdowns[ticker] = outperform_dropdown
 
     def set_tickers(self, tickers):
         # Clear previous widgets
@@ -51,13 +62,12 @@ class BlackLitterman(customtkinter.CTkFrame):
             widget.destroy()
         self.ticker_widgets.clear()
 
-        # Create a view for each ticker
         for ticker in tickers:
             ticker_frame = customtkinter.CTkFrame(self.ticker_container)
             ticker_label = customtkinter.CTkLabel(ticker_frame, text=f"Ticker: {ticker}", font=("Roboto", -14))
 
             view_options = ["Will Return", "Will Outperform (->) by"]
-            view_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=view_options, command=lambda selection, tf=ticker_frame: self.on_view_change(selection, tf, tickers))
+            view_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=view_options)
             value_entry = customtkinter.CTkEntry(ticker_frame, placeholder_text="Value")
             confidence_options = ['100', '75', '50', '25']
             confidence_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=confidence_options)
@@ -69,8 +79,37 @@ class BlackLitterman(customtkinter.CTkFrame):
             ticker_frame.pack(fill="x", padx=20, pady=5)
             self.ticker_widgets.append(ticker_frame)
 
-    def analyze(self):
-        # Implement the logic to analyze based on user inputs for each ticker
-        pass
+    def fetch_home_page_data(self):
+        self.start_date = self.controller.get_home_page_start_date()
+        self.end_date = self.controller.get_home_page_end_date()
+        self.tickers_list = self.controller.get_home_page_tickers_list()
+        self.tickers_df = self.controller.get_home_page_tickers_df()
 
-# Add the BlackLitterman class to your application, similar to how other pages are added
+    def analyze(self):
+        self.fetch_home_page_data()
+        views = []
+        for ticker_frame in self.ticker_widgets:
+            # Assuming the order of widgets is label, dropdown, entry, dropdown
+            widgets = ticker_frame.winfo_children()
+            view_dropdown = widgets[1]
+            value_entry = widgets[2]
+            confidence_dropdown = widgets[3]
+
+            view_selection = view_dropdown.get()
+            value = float(value_entry.get())
+            confidence = float(confidence_dropdown.get()) / 100
+
+            # Retrieve ticker name from label
+            ticker = widgets[0].cget("text").replace("Ticker: ", "")
+
+            if view_selection == "Will Outperform (->) by":
+                outperform_dropdown = self.outperform_dropdowns.get(ticker)
+                if outperform_dropdown:
+                    outperform_selection = outperform_dropdown.get()
+                    views.append(
+                        {'type': 'relative', 'asset1': ticker, 'asset2': outperform_selection, 'difference': value})
+            else:
+                views.append({'type': 'absolute', 'asset': ticker, 'return': value})
+
+        bl = BlackLitterman(self.tickers_df, self.tickers_list, views)
+        print(bl.optimize_with_black_litterman())
