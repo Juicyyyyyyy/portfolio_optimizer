@@ -49,8 +49,9 @@ class BlackLittermanPage(customtkinter.CTkFrame):
 
         # If "Will Outperform (->) by" is selected, add another dropdown
         if selection == "Will Outperform (->) by":
-            outperform_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=self.controller.get_home_page_tickers_list(), name='outperform_dropdown')
-            outperform_dropdown.is_outperform_dropdown = True
+            outperform_dropdown = customtkinter.CTkOptionMenu(ticker_frame,
+                                                              values=self.controller.get_home_page_tickers_list())
+            outperform_dropdown.is_outperform_dropdown = True  # Set a custom attribute to identify this dropdown
             outperform_dropdown.pack(side="left", padx=10, after=ticker_frame.winfo_children()[1])
 
             # Store reference to outperform_dropdown
@@ -67,7 +68,7 @@ class BlackLittermanPage(customtkinter.CTkFrame):
             ticker_label = customtkinter.CTkLabel(ticker_frame, text=f"Ticker: {ticker}", font=("Roboto", -14))
 
             view_options = ["Will Return", "Will Outperform (->) by"]
-            view_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=view_options)
+            view_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=view_options, command=lambda selection, t_frame=ticker_frame, t=ticker: self.on_view_change(selection, t_frame, t))
             value_entry = customtkinter.CTkEntry(ticker_frame, placeholder_text="Value")
             confidence_options = ['100', '75', '50', '25']
             confidence_dropdown = customtkinter.CTkOptionMenu(ticker_frame, values=confidence_options)
