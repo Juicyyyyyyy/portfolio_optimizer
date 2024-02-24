@@ -149,7 +149,13 @@ class BlackLittermanPage(customtkinter.CTkFrame):
         expected_return_percent, volatility_percent = expected_return * 100, volatility * 100
 
         # Display the results
-        self.label_weights.configure(text=f"Weights percent: {filtered_weights_string_percent}")
-        self.label_weights_raw.configure(text=f"Weights raw: {filtered_dollar_sizes_string}$")
-        self.label_expected_return.configure(text=f"Expected Return: {round(expected_return_percent, 2)}% per Year")
-        self.label_volatility.configure(text=f"Volatility: {round(volatility_percent, 2)}% per Year")
+        wraplength = 400
+        font = ("Roboto Medium", 12)
+        self.label_weights.configure(text=f"Weights percent: {filtered_weights_string_percent}", wraplength=wraplength,
+                                     fg_color="blanchedalmond", font=font)
+        self.label_weights_raw.configure(text=f"Weights raw: {filtered_dollar_sizes_string}$", wraplength=wraplength,
+                                         fg_color="blanchedalmond", font=font)
+        self.label_expected_return.configure(text=f"Expected Return: {round(expected_return_percent, 2)}% per Year",
+                                             wraplength=wraplength, fg_color="cadetblue1", font=font)
+        self.label_volatility.configure(text=f"Volatility: {round(volatility_percent, 2)}% per Year",
+                                        wraplength=wraplength, fg_color="darkolivegreen1", font=font)
