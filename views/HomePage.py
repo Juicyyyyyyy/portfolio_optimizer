@@ -16,6 +16,7 @@ class HomePage(customtkinter.CTkFrame):
         self.end_date_tf = None
         self.tickers_list = None
         self.tickers_df = None
+        self.portfolio_size = None
         self.controller = controller
 
         self.ticker_data = None
@@ -101,9 +102,16 @@ class HomePage(customtkinter.CTkFrame):
         # Option Menu for Financial Model in column 2
         self.label_fin_model = customtkinter.CTkLabel(self.column2, text="Choose Financial Model:")
         self.label_fin_model.pack(pady=2)
-        self.models = ["EfficientFrontier", "BlackLitterman", "MonteCarlo"]
+        self.models = ["EfficientFrontier", "BlackLitterman"]
         self.optionmenu_fin_model = customtkinter.CTkOptionMenu(self.column2, values=self.models)
         self.optionmenu_fin_model.pack(pady=2)
+
+        # Chose portfolio size
+        self.label_portfolio_size = customtkinter.CTkLabel(self.column2, text="Choose your portfolio size in $:")
+        self.label_portfolio_size.pack(pady=2)
+        self.portfolio_size_input = customtkinter.CTkEntry(self.column2, width=100, placeholder_text="10000")
+        self.portfolio_size_input.pack(pady=2)  # Add this line to pack the portfolio_size_input
+
 
         # Continue Button with enhanced style in column 2
         self.button_continue = customtkinter.CTkButton(self.column2, text="Continue", command=self.on_continue)
@@ -149,6 +157,12 @@ class HomePage(customtkinter.CTkFrame):
         # Check if ticker data is empty
         if not self.ticker_data:
             messagebox.showerror("Error", "Please enter or generate tickers before continuing.")
+            return
+
+        try:
+            self.portfolio_size = float(self.portfolio_size_input.get())
+        except ValueError:
+            messagebox.showerror("Error", "Please ensure you enter a valid number for portfolio size.")
             return
 
         self.tickers_list = [ticker.strip() for ticker in ticker_string.split(',')]

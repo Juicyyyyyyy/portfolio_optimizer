@@ -1,7 +1,7 @@
 from pypfopt.efficient_frontier import EfficientFrontier
 import yfinance as yf
 import pandas as pd
-from typing import List, Any, Dict
+from typing import List, Any, Dict, Tuple
 
 import datetime
 
@@ -10,12 +10,13 @@ from PortfolioOptimizer.CovarianceCalculator import SampleCovarianceCalculator
 
 
 class EfficientFrontierCalculator:
-    def __init__(self, data: pd.DataFrame, mu="capm"):
+    def __init__(self, data: pd.DataFrame, mu="capm", total_portfolio_value=10000):
         self._data = data
         if mu == "capm":
             self._mu = CapmCalculator(start_date=data.index[0], end_date=data.index[-1]).calculate_expected_return(data.columns.tolist())
         elif mu == "mean historical return":
             self._mu = MeanHistoricalReturnCalculator().calculate_expected_return(data)
+        self.total_portfolio_value = total_portfolio_value
         self._Sigma = SampleCovarianceCalculator().calculate_covariance(data)
         self._ef = None
 
@@ -29,7 +30,7 @@ class EfficientFrontierCalculator:
         cleaned_weights = self._ef.clean_weights()
         return cleaned_weights
 
-    def calculate_efficient_frontier_performance(self) -> tuple[float, float, float]:
+    def calculate_efficient_frontier_performance(self) -> Tuple[float, float, float]:
         if self._ef is None:
             raise ValueError(
                 "Efficient Frontier weights not calculated. Call calculate_efficient_frontier_weights() first.")

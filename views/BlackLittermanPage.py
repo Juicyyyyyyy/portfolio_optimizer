@@ -1,9 +1,16 @@
 import customtkinter
 from PortfolioOptimizer.BlackLitterman import BlackLitterman
 
+from _collections import OrderedDict
+
 class BlackLittermanPage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
+        self.label_volatility = None
+        self.label_expected_return = None
+        self.label_weights = None
+        self.label_weights_raw = None
+        self.portfolio_size = None
         self.controller = controller
 
         self.start_date = None
@@ -31,6 +38,22 @@ class BlackLittermanPage(customtkinter.CTkFrame):
         # Button to proceed with the analysis
         self.analyze_button = customtkinter.CTkButton(self, text="Analyze", command=self.analyze)
         self.analyze_button.pack(pady=20)
+
+        # Button to proceed with the analysis
+        self.analyze_button = customtkinter.CTkButton(self, text="Analyze", command=self.analyze)
+        self.analyze_button.pack(pady=20)
+
+        self.label_weights = customtkinter.CTkLabel(self, text="Weights%:")
+        self.label_weights.pack(pady=2)
+
+        self.label_weights_raw = customtkinter.CTkLabel(self, text="Weights$:")
+        self.label_weights_raw.pack(pady=2)
+
+        self.label_expected_return = customtkinter.CTkLabel(self, text="Expected Return:")
+        self.label_expected_return.pack(pady=2)
+
+        self.label_volatility = customtkinter.CTkLabel(self, text="Volatility:")
+        self.label_volatility.pack(pady=2)
 
     def create_headers(self):
         # Creating column headers
@@ -85,6 +108,7 @@ class BlackLittermanPage(customtkinter.CTkFrame):
         self.end_date = self.controller.get_home_page_end_date()
         self.tickers_list = self.controller.get_home_page_tickers_list()
         self.tickers_df = self.controller.get_home_page_tickers_df()
+        self.portfolio_size = self.controller.get_home_page_portfolio_value()
 
     def analyze(self):
         self.fetch_home_page_data()
@@ -113,4 +137,19 @@ class BlackLittermanPage(customtkinter.CTkFrame):
                 views.append({'type': 'absolute', 'asset': ticker, 'return': value})
 
         bl = BlackLitterman(self.tickers_df, self.tickers_list, views)
-        print(bl.optimize_with_black_litterman())
+        weights, expected_return, volatility, sharpe_ratio = bl.optimize_with_black_litterman()
+
+        filtered_weights = OrderedDict((key, value) for key, value in weights.items() if value != 0)
+        filtered_weights_string_percent = ", ".join(
+            [f"{key}: {value * 100:.2f}%" for key, value in filtered_weights.items()])
+
+        dollar_sizes = {key: value * self.portfolio_size for key, value in filtered_weights.items()}
+        filtered_dollar_sizes_string = ", ".join([f"{key}: ${value:.2f}" for key, value in dollar_sizes.items()])
+
+        expected_return_percent, volatility_percent = expected_return * 100, volatility * 100
+
+        # Display the results
+        self.label_weights.configure(text=f"Weights percent: {filtered_weights_string_percent}")
+        self.label_weights_raw.configure(text=f"Weights raw: {filtered_dollar_sizes_string}$")
+        self.label_expected_return.configure(text=f"Expected Return: {round(expected_return_percent, 2)}% per Year")
+        self.label_volatility.configure(text=f"Volatility: {round(volatility_percent, 2)}% per Year")

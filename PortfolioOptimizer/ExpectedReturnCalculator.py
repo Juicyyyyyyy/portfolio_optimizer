@@ -3,7 +3,6 @@ from pypfopt import expected_returns
 from PortfolioOptimizer.MarketDataProvider import MarketDataProvider as md
 
 import numpy as np
-import yfinance as yf
 import pandas as pd
 from typing import List, Any, Dict
 
@@ -34,7 +33,7 @@ class CapmCalculator(ExpectedReturnCalculator):
 
         :return: the latest 3-month US Treasury Bill yield as a decimal
         """
-        risk_free_rate = md.get_data('^IRX', period='2y')  # Update the ticker symbol to ^IRX
+        risk_free_rate = md.get_data(['^IRX'], period='2y')
         return risk_free_rate.iloc[-1] / 100
 
     def calculate_market_return(self) -> float:
@@ -43,7 +42,7 @@ class CapmCalculator(ExpectedReturnCalculator):
 
         :return: the average annualized return of the sp500 on the same years as the input data
         """
-        market_data = md.get_data('^GSPC', start_date=self.start_date, end_date=self.end_date)
+        market_data = md.get_data(['^GSPC'], start_date=self.start_date, end_date=self.end_date)
         # Calculating daily returns from daily adjusted close prices
         daily_returns = market_data.pct_change().dropna()
 
@@ -60,13 +59,13 @@ class CapmCalculator(ExpectedReturnCalculator):
     def calculate_beta(self, tickers: List[str]) -> Dict[str, float]:
         betas = {}
         # Fetch and resample market data to monthly
-        market_data = md.get_data('^GSPC', start_date=self.start_date, end_date=self.end_date)
+        market_data = md.get_data(['^GSPC'], start_date=self.start_date, end_date=self.end_date)
         monthly_market_data = market_data.resample('M').last()
         monthly_market_returns = monthly_market_data.pct_change().dropna()
 
         for ticker in tickers:
             # Fetch and resample stock data to monthly
-            stock_data = md.get_data(ticker, start_date=self.start_date, end_date=self.end_date)
+            stock_data = md.get_data([ticker], start_date=self.start_date, end_date=self.end_date)
             monthly_stock_data = stock_data.resample('M').last()
             monthly_stock_returns = monthly_stock_data.pct_change().dropna()
 

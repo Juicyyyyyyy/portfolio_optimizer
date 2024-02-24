@@ -5,8 +5,9 @@ from typing import List, Union, Any, Dict
 
 
 class MarketDataProvider:
+
     @staticmethod
-    def get_data(tickers: Union[List[str], str], start_date: str = None, end_date: str = None, period: str = None,
+    def get_data(tickers: List, start_date: str = None, end_date: str = None, period: str = None,
                  frequency: str = 'Adj Close') -> pd.DataFrame:
         """
         Fetches stock market data for specified tickers using Yahoo Finance API.
@@ -20,15 +21,27 @@ class MarketDataProvider:
                               yfinance such as 'Open', 'Close', 'High', 'Low', 'Volume'.
             :return: A pandas DataFrame containing the fetched data with dates as index and tickers as columns.
         """
+        valid_tickers = []
+        for ticker in tickers:
+            stock_data = yf.Ticker(ticker)
+            # Check if the ticker has historical data as a proxy for validation
+            if not stock_data.history(period="1d").empty:
+                valid_tickers.append(ticker)
+            else:
+                print(f"Ticker {ticker} is not valid or delisted.")
+
+        print(tickers)
+        print(valid_tickers)
+
         try:
             # Decide whether to use period or start and end dates
             if period:
-                data = yf.download(tickers, period=period)
+                data = yf.download(valid_tickers, period=period)
             else:
                 if not start_date or not end_date:
                     raise ValueError("Start date and end date must be specified if not using period.")
-                data = yf.download(tickers, start=start_date, end=end_date)
+                data = yf.download(valid_tickers, start=start_date, end=end_date)
             return data[frequency]
         except Exception as e:
-            logging.error(f"Error fetching data for {tickers} from {start_date} to {end_date}: {e}")
+            logging.error(f"Error fetching data for {valid_tickers} from {start_date} to {end_date}: {e}")
             raise

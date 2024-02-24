@@ -1,3 +1,5 @@
+from typing import List
+
 from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator, MeanHistoricalReturnCalculator
 from PortfolioOptimizer.MarketDataProvider import MarketDataProvider as md
 
@@ -8,7 +10,7 @@ import pandas as pd
 
 
 class BlackLitterman:
-    def __init__(self, data: pd.DataFrame, tickers: list[str], views, omega_tau: float = 0.05,
+    def __init__(self, data: pd.DataFrame, tickers: List[str], views, omega_tau: float = 0.05,
                  total_portfolio_value=10000):
         self.data = data
         self.Sigma = risk_models.sample_cov(self.data)
@@ -108,5 +110,6 @@ class BlackLitterman:
         cleaned_weights = ef.clean_weights()
 
         # Compute and return the portfolio performance
-        performance = ef.portfolio_performance(verbose=False)
-        return cleaned_weights, performance
+        expected_return, volatility, sharpe_ratio = ef.portfolio_performance(verbose=False)
+
+        return cleaned_weights, expected_return, volatility, sharpe_ratio

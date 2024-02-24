@@ -73,6 +73,10 @@ class PortfolioOptimizerApp(customtkinter.CTk):
         home_page = self.frames["HomePage"]
         return home_page.end_date.get_date()
 
+    def get_home_page_portfolio_value(self):
+        home_page = self.frames["HomePage"]
+        return home_page.portfolio_size
+
 
 if __name__ == "__main__":
     app = PortfolioOptimizerApp()

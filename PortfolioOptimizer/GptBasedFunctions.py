@@ -1,3 +1,5 @@
+from typing import List
+
 from ChatGPT.ApiGpt import ApiGpt
 from ChatGPT.Prompt import Prompt
 
@@ -6,7 +8,7 @@ import ast
 
 class GptBasedFunctions:
     @staticmethod
-    def generate_tickers(risk_tolerance: str, investment_area: str, investment_timeframe: str) -> list[str]:
+    def generate_tickers(risk_tolerance: str, investment_area: str, investment_timeframe: str) -> List[str]:
         """
         Generate a list ot tickers using the GPT API based on the user parameters
 
