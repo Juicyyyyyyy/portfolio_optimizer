@@ -1,5 +1,6 @@
 import customtkinter
 from PortfolioOptimizer.BlackLitterman import BlackLitterman
+import plotly.express as px
 
 from _collections import OrderedDict
 
@@ -39,10 +40,6 @@ class BlackLittermanPage(customtkinter.CTkFrame):
         self.analyze_button = customtkinter.CTkButton(self, text="Analyze", command=self.analyze)
         self.analyze_button.pack(pady=20)
 
-        # Button to proceed with the analysis
-        self.analyze_button = customtkinter.CTkButton(self, text="Analyze", command=self.analyze)
-        self.analyze_button.pack(pady=20)
-
         self.label_weights = customtkinter.CTkLabel(self, text="Weights%:")
         self.label_weights.pack(pady=2)
 
@@ -54,6 +51,9 @@ class BlackLittermanPage(customtkinter.CTkFrame):
 
         self.label_volatility = customtkinter.CTkLabel(self, text="Volatility:")
         self.label_volatility.pack(pady=2)
+
+        self.label_sharpe_ratio = customtkinter.CTkLabel(self, text="Sharpe ratio:")
+        self.label_sharpe_ratio.pack(pady=2)
 
     def create_headers(self):
         # Creating column headers
@@ -140,11 +140,14 @@ class BlackLittermanPage(customtkinter.CTkFrame):
         weights, expected_return, volatility, sharpe_ratio = bl.optimize_with_black_litterman()
 
         filtered_weights = OrderedDict((key, value) for key, value in weights.items() if value != 0)
-        filtered_weights_string_percent = ", ".join(
-            [f"{key}: {value * 100:.2f}%" for key, value in filtered_weights.items()])
-
         dollar_sizes = {key: value * self.portfolio_size for key, value in filtered_weights.items()}
-        filtered_dollar_sizes_string = ", ".join([f"{key}: ${value:.2f}" for key, value in dollar_sizes.items()])
+
+        sorted_weights = OrderedDict(sorted(filtered_weights.items(), key=lambda x: x[1], reverse=True))
+        sorted_dollar_sizes = OrderedDict(sorted(dollar_sizes.items(), key=lambda x: x[1], reverse=True))
+
+        filtered_weights_string_percent = ", ".join(
+            [f"{key}: {value * 100:.2f}%" for key, value in sorted_weights.items()])
+        filtered_dollar_sizes_string = ", ".join([f"{key}: ${value:.2f}" for key, value in sorted_dollar_sizes.items()])
 
         expected_return_percent, volatility_percent = expected_return * 100, volatility * 100
 
@@ -152,10 +155,27 @@ class BlackLittermanPage(customtkinter.CTkFrame):
         wraplength = 400
         font = ("Roboto Medium", 12)
         self.label_weights.configure(text=f"Weights percent: {filtered_weights_string_percent}", wraplength=wraplength,
-                                     fg_color="blanchedalmond", font=font)
+                                     fg_color="cadetblue1", font=font)
         self.label_weights_raw.configure(text=f"Weights raw: {filtered_dollar_sizes_string}$", wraplength=wraplength,
-                                         fg_color="blanchedalmond", font=font)
+                                         fg_color="cadetblue1", font=font)
+
+        # Create pie chart based on weights
+        labels = sorted_dollar_sizes.keys()
+        sizes = list(sorted_dollar_sizes.values())
+
+        # Create a Pie chart using Plotly
+        fig = px.pie(names=labels, values=sizes, title="Portfolio Weights",
+                     labels={'names': 'Ticker', 'values': 'Weight in $'},
+                     color_discrete_sequence=px.colors.qualitative.Plotly)
+
+        fig.update_traces(textinfo='label+percent')
+
+        # Show the interactive pie chart
+        fig.show()
+
         self.label_expected_return.configure(text=f"Expected Return: {round(expected_return_percent, 2)}% per Year",
-                                             wraplength=wraplength, fg_color="cadetblue1", font=font)
+                                             wraplength=wraplength, fg_color="blanchedalmond", font=font)
         self.label_volatility.configure(text=f"Volatility: {round(volatility_percent, 2)}% per Year",
                                         wraplength=wraplength, fg_color="darkolivegreen1", font=font)
+        self.label_sharpe_ratio.configure(text=f"Sharpe Ratio: {round(sharpe_ratio, 4)}",
+                                          wraplength=wraplength, fg_color="thistle1", font=font)
