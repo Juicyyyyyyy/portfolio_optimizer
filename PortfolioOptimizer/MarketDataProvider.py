@@ -25,7 +25,7 @@ class MarketDataProvider:
         for ticker in tickers:
             stock_data = yf.Ticker(ticker)
             # Check if the ticker has historical data as a proxy for validation
-            if not stock_data.history(period="1d").empty:
+            if not stock_data.history(period="1mo").empty:
                 valid_tickers.append(ticker)
             else:
                 print(f"Ticker {ticker} is not valid or delisted.")

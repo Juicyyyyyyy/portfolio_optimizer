@@ -4,6 +4,7 @@ from ChatGPT.ApiGpt import ApiGpt
 from ChatGPT.Prompt import Prompt
 
 import ast
+import markdown
 
 
 class GptBasedFunctions:
@@ -25,3 +26,17 @@ class GptBasedFunctions:
         tickers = ast.literal_eval(extracted_response)
 
         return tickers
+
+    @staticmethod
+    def generate_tickers_review(tickers: str):
+        """
+        :param tickers: a list of tickers name in str format
+        :return: a short review of each ticker in Markdown -> HTML format
+        """
+        prompt = Prompt.generate_stock_review_prompt(tickers)
+        response = ApiGpt.call_gpt(prompt=prompt)
+        extracted_response = ApiGpt.extract_text_between_tags(response, '<stocks-reviews>', '</stocks-reviews>')
+
+        return markdown.markdown(extracted_response)
+
+
