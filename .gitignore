@@ -3,6 +3,8 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+created_portfolios
+
 data
 
 # C extensions

@@ -61,6 +61,10 @@ class PortfolioOptimizerApp(customtkinter.CTk):
         home_page = self.frames["HomePage"]
         return home_page.tickers_list
 
+    def get_home_page_tickers_string(self):
+        home_page = self.frames["HomePage"]
+        return home_page.ticker_string
+
     def get_home_page_tickers_df(self):
         home_page = self.frames["HomePage"]
         return home_page.tickers_df
@@ -76,6 +80,10 @@ class PortfolioOptimizerApp(customtkinter.CTk):
     def get_home_page_portfolio_value(self):
         home_page = self.frames["HomePage"]
         return home_page.portfolio_size
+
+    def get_home_page_portfolio_id(self):
+        home_page = self.frames["HomePage"]
+        return home_page.portfolio_id
 
 
 if __name__ == "__main__":

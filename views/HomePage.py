@@ -6,12 +6,15 @@ from PortfolioOptimizer.MarketDataProvider import MarketDataProvider
 from datetime import datetime, timedelta
 import customtkinter
 from tkcalendar import DateEntry
+import os
 
 
 class HomePage(customtkinter.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
 
+        self.portfolio_id = None
+        self.ticker_string = None
         self.start_date_tf = None
         self.end_date_tf = None
         self.tickers_list = None
@@ -140,19 +143,19 @@ class HomePage(customtkinter.CTkFrame):
         generated_tickers = self.gpt.generate_tickers(risk_tolerance, investment_area, investment_timeframe)
         self.ticker_display.configure(text="Generated Tickers: " + ", ".join(generated_tickers))
 
-    def download_data(self, tickers, start_date, end_date):
-        return MarketDataProvider().get_data(tickers=tickers, start_date=start_date, end_date=end_date)
+    def download_data(self, tickers, start_date, end_date, return_updated_tickers: bool):
+        return MarketDataProvider().get_data(tickers=tickers, start_date=start_date, end_date=end_date, return_updated_tickers=return_updated_tickers)
 
     def on_continue(self):
         choice = self.user_choice.get()
 
         if choice == "manual":
             self.ticker_data = self.entry_tickers.get().strip()
-            ticker_string = self.entry_tickers.get().strip()
+            self.ticker_string = self.entry_tickers.get().strip()
         elif choice == "ai":
             generated_text = self.ticker_display.cget("text")
             self.ticker_data = generated_text.split(": ")[1] if ":" in generated_text else ""
-            ticker_string = generated_text.split(": ")[1] if ":" in generated_text else ""
+            self.ticker_string = generated_text.split(": ")[1] if ":" in generated_text else ""
 
         # Check if ticker data is empty
         if not self.ticker_data:
@@ -165,7 +168,22 @@ class HomePage(customtkinter.CTkFrame):
             messagebox.showerror("Error", "Please ensure you enter a valid number for portfolio size.")
             return
 
-        self.tickers_list = [ticker.strip() for ticker in ticker_string.split(',')]
+        self.tickers_list = [ticker.strip() for ticker in self.ticker_string.split(',')]
+
+        if len(self.tickers_list) < 2:
+            messagebox.showerror("Error", "Please enter at least two tickers.")
+            return
+
+        # create the portfolio folder
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d_%H-%M-%S")  # date creation will work as portfolio ID
+
+        self.portfolio_id = now_str
+
+        if not os.path.exists('created_portfolios'):
+            os.makedirs('created_portfolios')
+
+        os.makedirs('created_portfolios/' + now_str)
 
         # Proceed to the next frame
         chosen_model = self.optionmenu_fin_model.get()
@@ -174,5 +192,11 @@ class HomePage(customtkinter.CTkFrame):
             frame.set_tickers(self.ticker_data.split(', '))
         self.controller.show_frame(chosen_model + "Page")
 
-        self.tickers_df = self.download_data(self.tickers_list, self.start_date.get_date(), self.end_date.get_date())
+        self.tickers_df, self.tickers_list = self.download_data(self.tickers_list, self.start_date.get_date(), self.end_date.get_date(), return_updated_tickers=True)
+
+        print(self.ticker_string)
+        self.ticker_string = ' '.join(self.tickers_list)
+        self.ticker_string = self.ticker_string.replace(" ", ", ")
+        print(self.ticker_string)
+
 
