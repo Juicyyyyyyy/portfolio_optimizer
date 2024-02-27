@@ -8,7 +8,7 @@ class MarketDataProvider:
 
     @staticmethod
     def get_data(tickers: List, start_date: str = None, end_date: str = None, period: str = None,
-                 frequency: str = 'Adj Close', return_updated_tickers: bool = False) -> tuple[pd.DataFrame, list[str]]:
+                 frequency: str = 'Adj Close', return_updated_tickers: bool = False):
         """
         Fetches stock market data for specified tickers using Yahoo Finance API.
 

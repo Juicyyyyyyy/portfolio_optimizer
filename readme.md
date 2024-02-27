@@ -25,9 +25,9 @@
 
 <!-- PROJECT LOGO -->
 <br />
-<div align="center">
-  <a href="https://github.com/othneildrew/Best-README-Template">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+<div align="center" id="readme-top">
+  <a>
+    <img src="images/logo.png" alt="Logo" width="160" height="160">
   </a>
 
   <h3 align="center">AI Portfolio Optimizer App</h3>
@@ -63,7 +63,6 @@
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
@@ -75,7 +74,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-[![Product Name Screen Shot](images/main_app.png)](https://example.com)
+![Product Name Screen Shot](images/main_app.png)
 
 I think there is a real lack of financial opensource projects on the web. It's pretty hard to find resources to learn about this complex field. 
 It is especially unfortunate in an era like ours where a simple diversification portfolio strategy can majorly improve your purchasing
@@ -86,9 +85,9 @@ the basics of portfolio optimization.
 
 The tool use some well known mathematical concepts :
 * Modern Portfolio Theory by Harry Markowitz
-[![Product Name Screen Shot](images/efficient_frontier.png)](https://example.com)
+![Product Name Screen Shot](images/efficient_frontier.png)
 * Black Litterman model by Fischer Black and Robert Litterman
-[![Product Name Screen Shot](images/black_litterman.png)](https://example.com)
+![Product Name Screen Shot](images/black_litterman.png)
 
 The tool also use AI (gpt 3.5 turbo) to generate a list of stock tickers based on 
 a few parameters. Which simplify a lot the process of portfolio optimization
@@ -102,8 +101,8 @@ containing : the company name, the history about the company and a reason to inv
 on this asset. The review is created using a prompt for gpt 3.5 turbo.
 
 Portfolio analysis:
-[![Product Name Screen Shot](images/pdf_1.png)](https://example.com)
-[![Product Name Screen Shot](images/pdf_2.png)](https://example.com)
+![Product Name Screen Shot](images/pdf_1.png)
+![Product Name Screen Shot](images/pdf_2.png)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -123,45 +122,27 @@ Portfolio analysis:
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+
 
 ### Prerequisites
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
+* Python
 
 ### Installation
 
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
-
-1. Get a free API Key at [https://example.com](https://example.com)
+1. Get your Open AI API Key at [https://platform.openai.com/docs/overview](https://platform.openai.com/docs/overview)
 2. Clone the repo
    ```sh
-   git clone https://github.com/your_username_/Project-Name.git
+   git clone https://github.com/Juicyyyyyyy/portfolio_optimizer
    ```
-3. Install NPM packages
+3. Install requirements
    ```sh
-   npm install
+   pip install -r requirements. txt
    ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
+4. Create a .env file in the root folder and enter your API key
+   ```dotenv
+   OPENAI_API_KEY=ENTER_YOUR_API
    ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- USAGE EXAMPLES -->
-## Usage
-
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
-
-_For more examples, please refer to the [Documentation](https://example.com)_
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -169,7 +150,8 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 <!-- LICENSE -->
 ## License
 
-Distributed under the MIT License.
+Distributed under the MIT License. </br>
+![NumPy](https://img.shields.io/github/license/Ileriayo/markdown-badges?style=for-the-badge)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -178,9 +160,11 @@ Distributed under the MIT License.
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.com
+[![Linkedin](https://img.shields.io/badge/linkedin-%230077B5.svg?style=for-the-badge&logo=linkedin&logoColor=white)](https://pandas.pydata.org/)
 
-Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
+Mail: corentin.dupaigne@gmail.com
+</br>
+Portfolio: https://corentindupaigne.herokuapp.com
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -189,16 +173,14 @@ Project Link: [https://github.com/your_username/repo_name](https://github.com/yo
 <!-- ACKNOWLEDGMENTS -->
 ## Acknowledgments
 
-Use this space to list resources you find helpful and would like to give credit to. I've included a few of my favorites to kick things off!
+Some of the resources that helped me into creating this project
 
-* [Choose an Open Source License](https://choosealicense.com)
-* [GitHub Emoji Cheat Sheet](https://www.webpagefx.com/tools/emoji-cheat-sheet)
-* [Malven's Flexbox Cheatsheet](https://flexbox.malven.co/)
-* [Malven's Grid Cheatsheet](https://grid.malven.co/)
-* [Img Shields](https://shields.io)
-* [GitHub Pages](https://pages.github.com)
-* [Font Awesome](https://fontawesome.com)
-* [React Icons](https://react-icons.github.io/react-icons/search)
+* [Yahoo Finance API](https://developer.yahoo.com/api/)
+* [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt)
+* [CustomTkinter](https://github.com/TomSchimansky/CustomTkinter)
+* [Quantinsti](https://blog.quantinsti.com/calculating-covariance-matrix-portfolio-variance/)
+* [Quantgestion](https://quantgestion.fr/le-modele-de-fisher-black-et-robert-litterman/)
+* [Best-README-Template](https://github.com/othneildrew/Best-README-Template)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
