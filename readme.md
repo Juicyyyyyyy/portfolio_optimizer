@@ -31,17 +31,6 @@
   </a>
 
   <h3 align="center">AI Portfolio Optimizer App</h3>
-
-  <p align="center">
-    Financial portfolio optimization made easy !
-    <br />
-    <br />
-    <a href="https://github.com/othneildrew/Best-README-Template">View Demo</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Report Bug</a>
-    ·
-    <a href="https://github.com/othneildrew/Best-README-Template/issues">Request Feature</a>
-  </p>
 </div>
 
 
