@@ -66,7 +66,7 @@ class CapmCalculator(ExpectedReturnCalculator):
         for ticker in tickers:
             # Fetch and resample stock data to monthly
             stock_data = md.get_data([ticker], start_date=self.start_date, end_date=self.end_date)
-            monthly_stock_data = stock_data.resample('ME').last()
+            monthly_stock_data = stock_data.resample('M').last()
             monthly_stock_returns = monthly_stock_data.pct_change().dropna()
 
             # Aligning monthly stock returns with market returns
