@@ -15,7 +15,6 @@ from tkcalendar import DateEntry
 from datetime import datetime, timedelta
 import os
 
-from tkinter import ttk
 
 
 # Assuming the rest of your imports are correct and necessary for your application
@@ -47,13 +46,13 @@ class HomePage(tk.Frame):
 
         self.ai_frame = tk.Frame(self.column1)
 
-        self.label_risk_tolerance = tk.Label(self.ai_frame, text="Risk Tolerance (high, moderate, low):")
+        self.label_risk_tolerance = tk.Label(self.ai_frame, text="Risk Tolerance:")
         # Define the options for risk tolerance
         self.risk_tolerance_options = ['high', 'moderate', 'low']
         self.risk_tolerance_combobox = ttk.Combobox(self.ai_frame, values=self.risk_tolerance_options, state='readonly')
         self.risk_tolerance_combobox.set('moderate')  # Set default value
 
-        self.label_investment_area = tk.Label(self.ai_frame, text="Investment Area (tech, commodities, ...):")
+        self.label_investment_area = tk.Label(self.ai_frame, text="Investment Area:")
         # Define the options for investment area
         self.investment_area_options = [
             'tech', 'commodities', 'finance', 'healthcare', 'energy',
@@ -68,7 +67,7 @@ class HomePage(tk.Frame):
                                                      state='readonly')
         self.investment_area_combobox.set('tech')  # Set default value
 
-        self.label_investment_timeframe = tk.Label(self.ai_frame, text="Investment Timeframe (short term, long term):")
+        self.label_investment_timeframe = tk.Label(self.ai_frame, text="Investment Timeframe:")
         # Define the options for investment timeframe
         self.investment_timeframe_options = ['short term', 'long term']
         self.investment_timeframe_combobox = ttk.Combobox(self.ai_frame, values=self.investment_timeframe_options,

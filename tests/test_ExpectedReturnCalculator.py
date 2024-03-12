@@ -1,7 +1,4 @@
 import unittest
-from unittest.mock import patch
-import pandas as pd
-import numpy as np
 import yfinance as yf
 from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator, MeanHistoricalReturnCalculator
 

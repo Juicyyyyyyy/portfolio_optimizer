@@ -3,7 +3,6 @@ from tkinter import ttk
 import importlib
 import os
 
-import sv_ttk
 
 class PortfolioOptimizerApp(tk.Tk):
     def __init__(self, *args, **kwargs):

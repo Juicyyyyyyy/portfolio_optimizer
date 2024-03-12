@@ -2,7 +2,6 @@ from PortfolioOptimizer.MarketDataProvider import MarketDataProvider as md
 from PortfolioOptimizer.BlackLitterman import BlackLitterman
 
 import unittest
-import numpy as np
 
 
 class TestBlackLitterman(unittest.TestCase):

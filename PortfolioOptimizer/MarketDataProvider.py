@@ -1,7 +1,6 @@
 import logging
 import yfinance as yf
-import pandas as pd
-from typing import List, Union, Any, Dict, Tuple
+from typing import List
 
 
 class MarketDataProvider:

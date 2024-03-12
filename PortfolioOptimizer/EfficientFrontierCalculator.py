@@ -1,7 +1,6 @@
 from pypfopt.efficient_frontier import EfficientFrontier
-import yfinance as yf
 import pandas as pd
-from typing import List, Any, Dict, Tuple
+from typing import Tuple
 
 import datetime
 

@@ -1,7 +1,6 @@
 from typing import List
 
-from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator, MeanHistoricalReturnCalculator
-from PortfolioOptimizer.MarketDataProvider import MarketDataProvider as md
+from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator
 
 import numpy as np
 from pypfopt.efficient_frontier import EfficientFrontier

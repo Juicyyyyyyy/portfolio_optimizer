@@ -1,8 +1,6 @@
 import unittest
 from PortfolioOptimizer.MarketDataProvider import MarketDataProvider as md
 from PortfolioOptimizer.MonteCarlo import MonteCarlo
-import pandas as pd
-
 
 class TestMonteCarlo(unittest.TestCase):
 	def setUp(self) -> None:

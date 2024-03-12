@@ -2,7 +2,6 @@ import os
 import re
 from dotenv import load_dotenv
 from openai import OpenAI
-import ast
 
 # Load environment variables from .env
 load_dotenv()

@@ -1,6 +1,7 @@
-from pypfopt import risk_models, expected_returns
+from pypfopt import risk_models
 from abc import ABC, abstractmethod
 import pandas as pd
+
 
 class CovarianceCalculator(ABC):
     @abstractmethod
