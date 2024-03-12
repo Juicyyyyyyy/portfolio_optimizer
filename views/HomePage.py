@@ -274,6 +274,7 @@ class HomePage(tk.Frame):
         os.system(f"start {pdf_path}")
 
     def on_continue(self):
+        messagebox.showinfo("Information", "The analysis may take a few minutes to complete. A browser window will open containing the analysis. Please don't close the app.")
         choice = self.user_choice.get()
 
         if choice == "manual":
