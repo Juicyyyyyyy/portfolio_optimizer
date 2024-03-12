@@ -15,6 +15,8 @@ from tkcalendar import DateEntry
 from datetime import datetime, timedelta
 import os
 
+from tkinter import ttk
+
 
 # Assuming the rest of your imports are correct and necessary for your application
 
@@ -44,21 +46,48 @@ class HomePage(tk.Frame):
         self.entry_tickers.pack(pady=2)
 
         self.ai_frame = tk.Frame(self.column1)
+
         self.label_risk_tolerance = tk.Label(self.ai_frame, text="Risk Tolerance (high, moderate, low):")
-        self.entry_risk_tolerance = tk.Entry(self.ai_frame)
+        # Define the options for risk tolerance
+        self.risk_tolerance_options = ['high', 'moderate', 'low']
+        self.risk_tolerance_combobox = ttk.Combobox(self.ai_frame, values=self.risk_tolerance_options, state='readonly')
+        self.risk_tolerance_combobox.set('moderate')  # Set default value
+
         self.label_investment_area = tk.Label(self.ai_frame, text="Investment Area (tech, commodities, ...):")
-        self.entry_investment_area = tk.Entry(self.ai_frame)
+        # Define the options for investment area
+        self.investment_area_options = [
+            'tech', 'commodities', 'finance', 'healthcare', 'energy',
+            'consumer goods', 'real estate', 'utilities', 'telecommunications',
+            'industrials', 'materials', 'biotechnology', 'pharmaceuticals', 'information technology',
+            'consumer services', 'automotive', 'aerospace', 'defense', 'entertainment',
+            'retail', 'agriculture', 'food & beverage', 'construction', 'education',
+            'transportation', 'logistics', 'media', 'sports', 'renewable energy',
+            'environmental services', 'government and public sector', 'non-profit and NGO', 'cryptocurrencies'
+        ]
+        self.investment_area_combobox = ttk.Combobox(self.ai_frame, values=self.investment_area_options,
+                                                     state='readonly')
+        self.investment_area_combobox.set('tech')  # Set default value
+
         self.label_investment_timeframe = tk.Label(self.ai_frame, text="Investment Timeframe (short term, long term):")
-        self.entry_investment_timeframe = tk.Entry(self.ai_frame)
-        self.generate_button = tk.Button(self.ai_frame, text="Generate", command=self.generate_tickers)
-        self.ticker_display = tk.Label(self.ai_frame, text="Generated Tickers will appear here")
+        # Define the options for investment timeframe
+        self.investment_timeframe_options = ['short term', 'long term']
+        self.investment_timeframe_combobox = ttk.Combobox(self.ai_frame, values=self.investment_timeframe_options,
+                                                          state='readonly')
+        self.investment_timeframe_combobox.set('long term')  # Set default value
 
         self.label_risk_tolerance.pack(pady=(10, 0))
-        self.entry_risk_tolerance.pack(pady=(5, 0))
+        self.risk_tolerance_combobox.pack(pady=(5, 0))
         self.label_investment_area.pack(pady=(10, 0))
-        self.entry_investment_area.pack(pady=(5, 0))
+        self.investment_area_combobox.pack(pady=(5, 0))
         self.label_investment_timeframe.pack(pady=(10, 0))
-        self.entry_investment_timeframe.pack(pady=(5, 0))
+        self.investment_timeframe_combobox.pack(pady=(5, 0))
+
+        self.generate_button = tk.Button(self.ai_frame, text="Generate", command=self.generate_tickers)
+        self.ticker_display = tk.Label(self.ai_frame, text="Generated Tickers will appear here", wraplength=400)
+
+        self.label_risk_tolerance.pack(pady=(10, 0))
+        self.label_investment_area.pack(pady=(10, 0))
+        self.label_investment_timeframe.pack(pady=(10, 0))
         self.generate_button.pack(pady=(20, 10), padx=20)
         self.ticker_display.pack()
 
@@ -66,6 +95,13 @@ class HomePage(tk.Frame):
 
         self.label_title_2 = tk.Label(self.column2, text="Parameters", font=("Roboto Medium", 16))
         self.label_title_2.pack(pady=20)
+
+        # Load the image and keep a reference to it
+        self.image = tk.PhotoImage(file="logo.png")  # Use self.image instead of image
+
+        # Use the image in a label
+        label = tk.Label(self.column2, image=self.image)  # Reference self.image here
+        label.pack()
 
         ten_years_ago = datetime.now() - timedelta(days=365 * 10)
         self.label_start_date = tk.Label(self.column2, text="Start Date:")
@@ -98,12 +134,12 @@ class HomePage(tk.Frame):
             self.entry_tickers.pack(pady=2)
 
     def generate_tickers(self):
-        risk_tolerance = self.entry_risk_tolerance.get()
-        investment_area = self.entry_investment_area.get()
-        investment_timeframe = self.entry_investment_timeframe.get()
+        risk_tolerance = self.risk_tolerance_combobox.get()
+        investment_area = self.investment_area_combobox.get()
+        investment_timeframe = self.investment_timeframe_combobox.get()
 
         generated_tickers = self.gpt.generate_tickers(risk_tolerance, investment_area, investment_timeframe)
-        self.ticker_display.configure(text="Generated Tickers: " + ", ".join(generated_tickers))
+        self.ticker_display.configure(text="Generated Tickers: " + ", ".join(generated_tickers) + "\n" + "\n" + "If the generated tickers suit your needs, click Continue. Else, generate again or enter your tickers manually.")
 
     def download_data(self, tickers, start_date, end_date, return_updated_tickers: bool):
         return MarketDataProvider().get_data(tickers=tickers, start_date=start_date, end_date=end_date, return_updated_tickers=return_updated_tickers)

@@ -11,7 +11,7 @@ class PortfolioOptimizerApp(tk.Tk):
 
         # Configure window
         self.title("Portfolio Optimizer")
-        self.geometry("800x500")
+        self.geometry("750x550")
 
         # Container for all the pages
         container = tk.Frame(self)
@@ -41,6 +41,7 @@ class PortfolioOptimizerApp(tk.Tk):
 
 if __name__ == "__main__":
     app = PortfolioOptimizerApp()
+    app.iconbitmap('logo.ico')
     app.tk.call('source', 'forest-light.tcl')
     ttk.Style().theme_use('forest-light')
     app.mainloop()
