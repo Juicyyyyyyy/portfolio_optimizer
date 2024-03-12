@@ -41,4 +41,6 @@ class PortfolioOptimizerApp(tk.Tk):
 
 if __name__ == "__main__":
     app = PortfolioOptimizerApp()
+    app.tk.call('source', 'forest-light.tcl')
+    ttk.Style().theme_use('forest-light')
     app.mainloop()
