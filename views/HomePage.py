@@ -15,9 +15,9 @@ from tkcalendar import DateEntry
 from datetime import datetime, timedelta
 import os
 
-
-
-# Assuming the rest of your imports are correct and necessary for your application
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
+from database.models import Base, Portfolio
 
 class HomePage(tk.Frame):
     def __init__(self, parent, controller):
@@ -170,6 +170,27 @@ class HomePage(tk.Frame):
         filtered_dollar_sizes_string = ", ".join([f"{key}: ${value:.2f}" for key, value in sorted_dollar_sizes.items()])
 
         expected_return, volatility, sharpe_ratio = efficient_frontier_calculator.calculate_efficient_frontier_performance()
+
+        Session = sessionmaker(bind=create_engine(os.getenv("DB_URL")))
+        session = Session()
+
+        new_portfolio = Portfolio(
+            assets_weights=sorted_weights,
+            expected_return=expected_return,
+            expected_volatility=volatility,
+            sharpe_ratio=sharpe_ratio,
+            portfolio_value=self.portfolio_size,
+            assets_review='',
+        )
+
+        # Add the new portfolio to the session
+        session.add(new_portfolio)
+
+        # Commit the transaction to save the new portfolio in the database
+        session.commit()
+
+        # Close the session
+        session.close()
 
         expected_return_percent, volatility_percent = expected_return * 100, volatility * 100
 

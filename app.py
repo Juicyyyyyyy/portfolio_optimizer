@@ -3,6 +3,7 @@ from tkinter import ttk
 import importlib
 import os
 
+from database.create_tables import create_tables
 
 class PortfolioOptimizerApp(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -39,6 +40,7 @@ class PortfolioOptimizerApp(tk.Tk):
         frame.tkraise()
 
 if __name__ == "__main__":
+    create_tables()
     app = PortfolioOptimizerApp()
     app.iconbitmap('logo.ico')
     app.tk.call('source', 'forest-light.tcl')
