@@ -119,9 +119,37 @@ enables investors to construct an asset portfolio that maximizes expected return
 
 The app also uses the [Capital Asset Pricing Model (CAPM)](https://www.investopedia.com/terms/c/capm.asp). CAPM is a
 model that describes the relationship between systematic risk and expected return for assets, particularly stocks. It is
-used to price risky securities and generate expected returns for assets given the risk of those assets and the cost of
-capital.
+used to price risky securities and generate expected returns for## Usage
 
+### Using Docker (Recommended)
+
+1.  **Start the App:**
+    ```bash
+    docker compose up -d
+    ```
+
+2.  **Open the App:**
+    Navigate to `http://localhost:8000`.
+
+3.  **Stop the App:**
+    ```bash
+    docker compose down
+    ```
+
+### Local Development
+
+1.  **Start the Web Server:**
+    ```bash
+    uvicorn main:app --reload
+    ```
+
+2.  **Open the App:**
+    Open your browser and navigate to `http://localhost:8000`.
+
+3.  **Optimize:**
+    - Enter tickers manually or use the **AI Suggest** feature.
+    - Set your parameters (dates, investment amount).
+    - Click **Analyze Portfolio** to see the optimal allocation and performance metrics.
 For most of the financial calculations I utilized the package [PyPortfolioOpt](https://github.com/robertmartin8/PyPortfolioOpt).
 
 ## Built With
@@ -136,7 +164,7 @@ For most of the financial calculations I utilized the package [PyPortfolioOpt](h
 
 ### Prerequisites
 
-* Python 3.9 (some newer versions may cause issues)
+* Python 3.12
 
 ### Installation
 

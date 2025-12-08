@@ -1,5 +1,6 @@
 import logging
 import yfinance as yf
+import pandas as pd
 from typing import List
 
 
@@ -32,12 +33,20 @@ class MarketDataProvider:
 
         try:
             # Decide whether to use period or start and end dates
-            if period:
-                data = yf.download(valid_tickers, period=period)
-            else:
-                if not start_date or not end_date:
-                    raise ValueError("Start date and end date must be specified if not using period.")
-                data = yf.download(valid_tickers, start=start_date, end=end_date)
+            try:
+                if period:
+                    data = yf.download(valid_tickers, period=period, auto_adjust=False)
+                else:
+                    if not start_date or not end_date:
+                        raise ValueError("Start date and end date must be specified if not using period.")
+                    data = yf.download(valid_tickers, start=start_date, end=end_date, auto_adjust=False)
+            except Exception as e:
+                print(f"Error downloading data: {e}")
+                return (pd.DataFrame(), []) if return_updated_tickers else pd.DataFrame()
+
+            if data.empty:
+                return (pd.DataFrame(), []) if return_updated_tickers else pd.DataFrame()
+
             if return_updated_tickers:
                 return data[frequency], valid_tickers
             else:

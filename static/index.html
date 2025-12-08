@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Portfolio Optimizer</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>AI Portfolio Optimizer</h1>
+            <p>Optimize your investments with the power of AI and Modern Portfolio Theory.</p>
+        </header>
+
+        <main>
+            <section class="card input-section">
+                <h2>Portfolio Configuration</h2>
+                <form id="optimizer-form">
+                    <div class="form-group">
+                        <label for="tickers">Tickers (comma separated)</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="tickers" placeholder="e.g., AAPL, MSFT, GOOGL" required>
+                            <button type="button" id="ai-suggest-btn" class="secondary-btn">✨ AI Suggest</button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start-date">Start Date</label>
+                            <input type="date" id="start-date" value="2015-01-01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="end-date">End Date</label>
+                            <input type="date" id="end-date" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="investment">Investment Amount ($)</label>
+                            <input type="number" id="investment" value="10000" min="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="risk-rate">Risk Free Rate (%)</label>
+                            <input type="number" id="risk-rate" value="2.0" step="0.1">
+                        </div>
+                    </div>
+
+                    <button type="submit" id="analyze-btn" class="primary-btn">Analyze Portfolio</button>
+                </form>
+            </section>
+
+            <section id="results-section" class="hidden">
+                <div class="card metrics-card">
+                    <h2>Performance Metrics</h2>
+                    <div class="metrics-grid">
+                        <div class="metric-item">
+                            <span class="metric-label">Expected Return</span>
+                            <span class="metric-value" id="expected-return">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Annual Volatility</span>
+                            <span class="metric-value" id="volatility">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Sharpe Ratio</span>
+                            <span class="metric-value" id="sharpe-ratio">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <h2>Optimal Allocation</h2>
+                    <div class="chart-container">
+                        <canvas id="allocation-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card details-card">
+                    <h2>Allocation Details</h2>
+                    <table id="allocation-table">
+                        <thead>
+                            <tr>
+                                <th>Ticker</th>
+                                <th>Weight</th>
+                                <th>Value ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be added here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- AI Modal -->
+    <div id="ai-modal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>AI Ticker Suggestion</h2>
+            <p>Describe your investment strategy or interests:</p>
+            <textarea id="ai-prompt" placeholder="e.g., High growth tech stocks involved in AI..."></textarea>
+            <div class="form-row">
+                <label>Number of tickers:</label>
+                <input type="number" id="ai-count" value="5" min="1" max="20">
+            </div>
+            <button id="generate-tickers-btn" class="primary-btn">Generate</button>
+            <div id="ai-loading" class="hidden">Generating...</div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

@@ -34,7 +34,11 @@ class CapmCalculator(ExpectedReturnCalculator):
         :return: the latest 3-month US Treasury Bill yield as a decimal
         """
         risk_free_rate = md.get_data(['^IRX'], period='2y')
-        return risk_free_rate.iloc[-1] / 100
+        # Check if it's a DataFrame/Series and extract scalar
+        val = risk_free_rate.iloc[-1]
+        if isinstance(val, pd.Series):
+            val = val.iloc[0]
+        return val / 100
 
     def calculate_market_return(self) -> float:
         """
@@ -51,6 +55,8 @@ class CapmCalculator(ExpectedReturnCalculator):
         avg_daily_return = daily_returns.mean()
         annualized_return = (1 + avg_daily_return) ** 252 - 1
 
+        if isinstance(annualized_return, pd.Series):
+            return annualized_return.iloc[0]
         return annualized_return
 
     def calculate_market_premium(self) -> float:  # Mkt - Rf
@@ -60,20 +66,43 @@ class CapmCalculator(ExpectedReturnCalculator):
         betas = {}
         # Fetch and resample market data to monthly
         market_data = md.get_data(['^GSPC'], start_date=self.start_date, end_date=self.end_date)
-        monthly_market_data = market_data.resample('M').last()
+        monthly_market_data = market_data.resample('ME').last()
         monthly_market_returns = monthly_market_data.pct_change().dropna()
 
         for ticker in tickers:
             # Fetch and resample stock data to monthly
             stock_data = md.get_data([ticker], start_date=self.start_date, end_date=self.end_date)
-            monthly_stock_data = stock_data.resample('M').last()
+            if stock_data.empty:
+                betas[ticker] = 0.0
+                continue
+            monthly_stock_data = stock_data.resample('ME').last()
             monthly_stock_returns = monthly_stock_data.pct_change().dropna()
 
             # Aligning monthly stock returns with market returns
             aligned_stock, aligned_market = monthly_stock_returns.align(monthly_market_returns, join='inner')
 
+            # Ensure aligned_market is 1D
+            if isinstance(aligned_market, pd.DataFrame):
+                if aligned_market.empty:
+                    betas[ticker] = 0.0
+                    continue
+                aligned_market = aligned_market.iloc[:, 0]
+            
+            # Ensure aligned_stock is 1D
+            if isinstance(aligned_stock, pd.DataFrame):
+                if aligned_stock.empty:
+                    betas[ticker] = 0.0
+                    continue
+                aligned_stock = aligned_stock.iloc[:, 0]
+
+            if aligned_stock.empty or aligned_market.empty:
+                betas[ticker] = 0.0 # Or nan
+                continue
+
             # Calculating covariance and variance
-            covariance = np.cov(aligned_stock, aligned_market)[0, 1]
+            # np.cov returns a 2x2 matrix
+            covariance_matrix = np.cov(aligned_stock, aligned_market)
+            covariance = covariance_matrix[0, 1]
             market_variance = np.var(aligned_market)
 
             # Calculating beta

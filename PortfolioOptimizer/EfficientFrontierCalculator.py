@@ -22,15 +22,15 @@ class EfficientFrontierCalculator:
     def get_data(self):
         return self._data
 
-    def calculate_efficient_frontier_weights(self):
+    def calculate_efficient_frontier_weights(self, risk_free_rate=0.02):
         if self._ef is None:
             self._ef = EfficientFrontier(self._mu, self._Sigma)
-        raw_weights = self._ef.max_sharpe()
+        raw_weights = self._ef.max_sharpe(risk_free_rate=risk_free_rate)
         cleaned_weights = self._ef.clean_weights()
         return cleaned_weights
 
-    def calculate_efficient_frontier_performance(self) -> Tuple[float, float, float]:
+    def calculate_efficient_frontier_performance(self, risk_free_rate=0.02) -> Tuple[float, float, float]:
         if self._ef is None:
             raise ValueError(
                 "Efficient Frontier weights not calculated. Call calculate_efficient_frontier_weights() first.")
-        return self._ef.portfolio_performance()
+        return self._ef.portfolio_performance(risk_free_rate=risk_free_rate)
