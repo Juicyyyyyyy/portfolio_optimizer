@@ -1,37 +1,39 @@
 import unittest
-import yfinance as yf
+from unittest.mock import MagicMock
+import pandas as pd
+import numpy as np
 from PortfolioOptimizer.EfficientFrontierCalculator import EfficientFrontierCalculator
 
-data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2017-01-01", end="2021-01-01")['Adj Close']
-
-
 class TestPortfolioOptimizer(unittest.TestCase):
-
-    def __init__(self, methodName='runTest'):
-        super().__init__(methodName)
-        self.calculator = EfficientFrontierCalculator(data)
+    def setUp(self):
+        dates = pd.date_range(start="2023-01-01", periods=100)
+        # Create correlated data to ensure a valid covariance matrix
+        # Independent returns
+        r1 = np.random.normal(0.001, 0.02, 100)
+        r2 = np.random.normal(0.001, 0.02, 100)
+        r3 = np.random.normal(0.001, 0.02, 100)
+        
+        # Prices
+        p1 = 100 * np.cumprod(1 + r1)
+        p2 = 100 * np.cumprod(1 + r2)
+        p3 = 100 * np.cumprod(1 + r3)
+        
+        self.data = pd.DataFrame({
+            "AAPL": p1,
+            "MSFT": p2,
+            "GOOG": p3
+        }, index=dates)
+        self.calculator = EfficientFrontierCalculator(self.data)
 
     def test_efficient_frontier_weights(self):
-
-        # Execute
         weights = self.calculator.calculate_efficient_frontier_weights()
-
-        # Assert
         self.assertTrue(all(isinstance(weight, float) for weight in weights.values()))
-        print(weights)
+        self.assertAlmostEqual(sum(weights.values()), 1.0, places=4)
 
     def test_efficient_frontier_performance(self):
-        # Setup
         self.calculator.calculate_efficient_frontier_weights()
-
-        # Execute
         performance = self.calculator.calculate_efficient_frontier_performance()
-
-        # Assert
-        self.assertEqual(len(performance), 3)  # expected return, volatility, Sharpe ratio
-        print(performance)
-
-# More tests could be added for different scenarios, input data types, and error cases.
+        self.assertEqual(len(performance), 3)
 
 if __name__ == '__main__':
     unittest.main()

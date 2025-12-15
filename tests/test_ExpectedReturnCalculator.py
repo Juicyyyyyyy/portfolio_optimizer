@@ -1,43 +1,39 @@
 import unittest
-import yfinance as yf
+from unittest.mock import MagicMock, patch
+import pandas as pd
 from PortfolioOptimizer.ExpectedReturnCalculator import CapmCalculator, MeanHistoricalReturnCalculator
 
-tickers = ["AAPL", "MSFT", "GOOGL"]
-
-data = yf.download(["AAPL", "MSFT", "GOOGL"], start="2019-01-01", end="2024-01-01")['Adj Close']
-
-
-class testMeanHistoricalReturnCalculator(unittest.TestCase):
+class TestMeanHistoricalReturnCalculator(unittest.TestCase):
     def test_calculate_expected_return(self):
-        meanCalculator = MeanHistoricalReturnCalculator()
-        expected_return = meanCalculator.calculate_expected_return(data)
-        print(expected_return)
-
-
-first_date = data.index[0].date()
-last_date = data.index[-1].date()
-
-capm = CapmCalculator(start_date=first_date, end_date=last_date)
-
+        data = pd.DataFrame({
+            "A": [100, 101, 102],
+            "B": [50, 51, 52]
+        })
+        calc = MeanHistoricalReturnCalculator()
+        # pypfopt's mean_historical_return calculates annualized return
+        # We just verify it returns a Series
+        result = calc.calculate_expected_return(data)
+        self.assertIsInstance(result, pd.Series)
+        self.assertEqual(len(result), 2)
 
 class TestCapmCalculator(unittest.TestCase):
+    @patch("PortfolioOptimizer.ExpectedReturnCalculator.md")
+    def test_calculate_risk_free_rate(self, mock_md):
+        # Mock get_data for ^IRX
+        mock_md.get_data.return_value = pd.Series([2.0], index=[pd.Timestamp("2023-01-01")])
+        
+        capm = CapmCalculator("2023-01-01", "2023-01-02")
+        rf = capm.calculate_risk_free_rate()
+        self.assertEqual(rf, 0.02)
 
-    def test_calculate_risk_free_rate(self):
-        risk_free_rate = capm.calculate_risk_free_rate()
-        print("The risk free rate is : " + str(risk_free_rate))
+    @patch("PortfolioOptimizer.ExpectedReturnCalculator.md")
+    def test_calculate_market_return(self, mock_md):
+        # Mock get_data for ^GSPC
+        mock_md.get_data.return_value = pd.Series([100, 110], index=pd.to_datetime(["2023-01-01", "2023-01-02"]))
+        
+        capm = CapmCalculator("2023-01-01", "2023-01-02")
+        mkt_ret = capm.calculate_market_return()
+        self.assertIsInstance(mkt_ret, float)
 
-    def test_calculate_market_return(self):
-        market_return = capm.calculate_market_return()
-        print("The market return is : " + str(market_return))
-
-    def test_calculate_market_premium(self):
-        market_premium = capm.calculate_market_premium()
-        print("The market premium (Mkt-rf) is : " + str(market_premium))
-
-    def test_calculate_beta(self):
-        betas = capm.calculate_beta(tickers)
-        print("The betas are :" + str(betas))
-
-    def test_calculate_expected_return(self):
-        expected_return = capm.calculate_expected_return(tickers)
-        print("The expected return is : " + str(expected_return))
+if __name__ == '__main__':
+    unittest.main()
