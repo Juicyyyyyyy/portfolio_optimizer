@@ -79,7 +79,8 @@ class CapmCalculator(ExpectedReturnCalculator):
             monthly_stock_returns = monthly_stock_data.pct_change().dropna()
 
             # Aligning monthly stock returns with market returns
-            aligned_stock, aligned_market = monthly_stock_returns.align(monthly_market_returns, join='inner')
+            # axis=0 ensures alignment only on index (dates), ignoring column names
+            aligned_stock, aligned_market = monthly_stock_returns.align(monthly_market_returns, join='inner', axis=0)
 
             # Ensure aligned_market is 1D
             if isinstance(aligned_market, pd.DataFrame):
