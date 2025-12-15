@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -49,6 +51,57 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label for="strategy">Optimization Strategy</label>
+                        <select id="strategy">
+                            <option value="max_sharpe">Max Sharpe Ratio (Efficient Frontier)</option>
+                            <option value="hrp">Hierarchical Risk Parity (HRP)</option>
+                            <option value="black_litterman">Black-Litterman (Market Equilibrium)</option>
+                        </select>
+                    </div>
+
+                    <!-- Black-Litterman Views Section -->
+                    <div id="bl-views-section" class="hidden">
+                        <h3>Market Views</h3>
+                        <p class="hint">Add your own views to adjust the model.</p>
+
+                        <div class="view-form">
+                            <div class="form-row">
+                                <select id="view-type">
+                                    <option value="absolute">Absolute (Asset X returns Y%)</option>
+                                    <option value="relative">Relative (Asset X beats Asset Y by Z%)</option>
+                                </select>
+                            </div>
+
+                            <!-- Absolute View Inputs -->
+                            <div id="absolute-inputs" class="form-row">
+                                <select id="abs-asset" class="ticker-select">
+                                    <option>Select Asset</option>
+                                </select>
+                                <input type="number" id="abs-return" placeholder="Return %" step="0.1">
+                            </div>
+
+                            <!-- Relative View Inputs -->
+                            <div id="relative-inputs" class="form-row hidden">
+                                <select id="rel-asset1" class="ticker-select">
+                                    <option>Asset 1</option>
+                                </select>
+                                <span>beats</span>
+                                <select id="rel-asset2" class="ticker-select">
+                                    <option>Asset 2</option>
+                                </select>
+                                <span>by</span>
+                                <input type="number" id="rel-diff" placeholder="Diff %" step="0.1">
+                            </div>
+
+                            <button type="button" id="add-view-btn" class="secondary-btn small-btn">Add View</button>
+                        </div>
+
+                        <ul id="views-list">
+                            <!-- Added views will appear here -->
+                        </ul>
+                    </div>
+
                     <button type="submit" id="analyze-btn" class="primary-btn">Analyze Portfolio</button>
                 </form>
             </section>
@@ -76,6 +129,13 @@
                     <h2>Optimal Allocation</h2>
                     <div class="chart-container">
                         <canvas id="allocation-chart"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <h2>Monte Carlo Simulation (1 Year)</h2>
+                    <div class="chart-container">
+                        <canvas id="simulation-chart"></canvas>
                     </div>
                 </div>
 
@@ -114,6 +174,7 @@
         </div>
     </div>
 
-    <script src="/static/script.js"></script>
+    <script src="/static/script.js?v=1"></script>
 </body>
+
 </html>

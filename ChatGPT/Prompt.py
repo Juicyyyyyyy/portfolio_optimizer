@@ -16,6 +16,18 @@ class Prompt:
         return prompt
 
     @staticmethod
+    def generate_custom_recommendation_prompt(description, number_of_tickers):
+        prompt = (
+            f"Generate a comprehensive analysis for portfolio investment considering the following user description:\n"
+            f"\"{description}\"\n"
+            f"Based on this analysis, suggest a list of {number_of_tickers} stock tickers suitable for this profile. "
+            "Please provide the tickers in a Python list format, ensuring they are recognized by major stock exchanges "
+            "and compatible with Yahoo Finance. Avoid tickers with punctuation marks."
+            "Format the response as [stocks]['TICKER1', 'TICKER2', ...][/stocks]."
+        )
+        return prompt
+
+    @staticmethod
     def generate_stock_review_prompt(tickers: str):
         prompt = (
             f"""Based on the following list of stock tickers, create a short review based on real facts for each ticker. 

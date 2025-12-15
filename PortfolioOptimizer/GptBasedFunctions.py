@@ -28,6 +28,14 @@ class GptBasedFunctions:
         return tickers
 
     @staticmethod
+    def generate_tickers_from_description(description: str, number_of_tickers: int) -> List[str]:
+        prompt = Prompt.generate_custom_recommendation_prompt(description, number_of_tickers)
+        response = ApiGpt.call_gpt(prompt=prompt)
+        extracted_response = ApiGpt.extract_text_between_tags(response, '[stocks]', '[/stocks]')
+        tickers = ast.literal_eval(extracted_response)
+        return tickers
+
+    @staticmethod
     def generate_tickers_review(tickers: str):
         """
         :param tickers: a list of tickers name in str format

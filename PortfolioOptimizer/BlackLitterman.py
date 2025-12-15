@@ -92,12 +92,18 @@ class BlackLitterman:
         Optimizes the portfolio using the Black-Litterman model.
         """
 
-        # Ensure that views have been set
-        if self.P is None or self.Q is None:
-            raise ValueError("Views (P and Q) must be set before optimization.")
-
         # Initialize the Black-Litterman model
-        bl = BlackLittermanModel(self.Sigma, pi=self.prior, Q=self.Q, P=self.P, omega=self.omega)
+        # If views are not provided, we can run BL with just the prior (market equilibrium)
+        # But PyPortfolioOpt might require Q and P if we pass them.
+        # If P and Q are None, we should check if we can instantiate BL without them or with empty arrays.
+        
+        if self.P is None or self.Q is None:
+             # If no views, BL model essentially reverts to the prior (CAPM/Market Equilibrium)
+             # We can simulate this by passing empty P and Q or just using the prior directly.
+             # However, to keep using the BL class structure:
+             bl = BlackLittermanModel(self.Sigma, pi=self.prior, absolute_views={}, omega=self.omega)
+        else:
+             bl = BlackLittermanModel(self.Sigma, pi=self.prior, Q=self.Q, P=self.P, omega=self.omega)
 
         # Compute the posterior returns and covariances
         posterior_rets = bl.bl_returns()
