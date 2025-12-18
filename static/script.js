@@ -6,12 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const analyzeBtn = document.getElementById('analyze-btn');
     const resultsSection = document.getElementById('results-section');
 
-    // Modal elements
-    const modal = document.getElementById('ai-modal');
-    const aiSuggestBtn = document.getElementById('ai-suggest-btn');
-    const closeModal = document.querySelector('.close-modal');
-    const generateTickersBtn = document.getElementById('generate-tickers-btn');
-    const aiLoading = document.getElementById('ai-loading');
+
 
     let allocationChart = null;
     let simulationChart = null;
@@ -213,6 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('expected-return').textContent = (data.performance.expected_return * 100).toFixed(2) + '%';
         document.getElementById('volatility').textContent = (data.performance.volatility * 100).toFixed(2) + '%';
         document.getElementById('sharpe-ratio').textContent = data.performance.sharpe_ratio.toFixed(2);
+        document.getElementById('sortino-ratio').textContent = data.performance.sortino_ratio ? data.performance.sortino_ratio.toFixed(2) : 'N/A';
+        document.getElementById('var-95').textContent = data.performance.var_95 ? (data.performance.var_95 * 100).toFixed(2) + '%' : 'N/A';
+        document.getElementById('cvar-95').textContent = data.performance.cvar_95 ? (data.performance.cvar_95 * 100).toFixed(2) + '%' : 'N/A';
 
         // Table
         const tbody = document.querySelector('#allocation-table tbody');
@@ -351,58 +349,5 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // AI Modal Logic
-    aiSuggestBtn.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-        modal.style.display = 'flex';
-    });
 
-    closeModal.addEventListener('click', () => {
-        modal.classList.add('hidden');
-        modal.style.display = 'none';
-    });
-
-    window.addEventListener('click', (e) => {
-        if (e.target === modal) {
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-        }
-    });
-
-    generateTickersBtn.addEventListener('click', async () => {
-        const prompt = document.getElementById('ai-prompt').value;
-        const count = parseInt(document.getElementById('ai-count').value);
-
-        if (!prompt) {
-            alert('Please enter a description.');
-            return;
-        }
-
-        aiLoading.classList.remove('hidden');
-        generateTickersBtn.disabled = true;
-
-        try {
-            const response = await fetch('/api/generate_tickers', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_input: prompt,
-                    number_of_tickers: count
-                })
-            });
-
-            if (!response.ok) throw new Error('Generation failed');
-
-            const data = await response.json();
-            document.getElementById('tickers').value = data.tickers.join(', ');
-
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-        } catch (error) {
-            alert('Error generating tickers: ' + error.message);
-        } finally {
-            aiLoading.classList.add('hidden');
-            generateTickersBtn.disabled = false;
-        }
-    });
 });

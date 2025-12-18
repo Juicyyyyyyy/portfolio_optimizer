@@ -29,6 +29,13 @@ class EfficientFrontierCalculator:
         cleaned_weights = self._ef.clean_weights()
         return cleaned_weights
 
+    def calculate_min_volatility_weights(self):
+        if self._ef is None:
+            self._ef = EfficientFrontier(self._mu, self._Sigma)
+        raw_weights = self._ef.min_volatility()
+        cleaned_weights = self._ef.clean_weights()
+        return cleaned_weights
+
     def calculate_efficient_frontier_performance(self, risk_free_rate=0.02) -> Tuple[float, float, float]:
         if self._ef is None:
             raise ValueError(

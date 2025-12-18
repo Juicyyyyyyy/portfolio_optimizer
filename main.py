@@ -15,7 +15,7 @@ from PortfolioOptimizer.ExpectedReturnCalculator import MeanHistoricalReturnCalc
 from PortfolioOptimizer.CovarianceCalculator import SampleCovarianceCalculator
 from PortfolioOptimizer.MarketDataProvider import MarketDataProvider
 from PortfolioOptimizer.EfficientFrontierCalculator import EfficientFrontierCalculator
-from PortfolioOptimizer.GptBasedFunctions import GptBasedFunctions
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -32,7 +32,7 @@ class TickerRequest(BaseModel):
     end_date: str
     risk_free_rate: float = 0.02
     investment_amount: float = 10000.0
-    strategy: str = "max_sharpe" # Options: max_sharpe, hrp, black_litterman
+    strategy: str = "max_sharpe" # Options: max_sharpe, hrp, black_litterman, min_volatility
     views: Optional[List[dict]] = None # List of views for Black-Litterman
 
 class SimulationRequest(BaseModel):
@@ -44,7 +44,6 @@ class SimulationRequest(BaseModel):
     num_simulations: int = 1000
     time_horizon: int = 252
 
-# ... (GenerateTickersRequest and generate_tickers endpoint)
 
 @app.post("/api/analyze")
 async def analyze_portfolio(request: TickerRequest):
@@ -79,10 +78,40 @@ async def analyze_portfolio(request: TickerRequest):
             cleaned_weights, exp_ret, vol, sharpe = bl.optimize_with_black_litterman()
             performance = (exp_ret, vol, sharpe)
             
-        else: # Default to Max Sharpe (Efficient Frontier)
-            ef_calculator = EfficientFrontierCalculator(prices_df)
-            cleaned_weights = ef_calculator.calculate_efficient_frontier_weights(risk_free_rate=request.risk_free_rate)
-            performance = ef_calculator.calculate_efficient_frontier_performance(risk_free_rate=request.risk_free_rate)
+        elif request.strategy == "min_volatility":
+            ef = EfficientFrontierCalculator(prices_df)
+            cleaned_weights = ef.calculate_min_volatility_weights()
+            performance = ef.calculate_efficient_frontier_performance(risk_free_rate=request.risk_free_rate)
+
+        else: # Default to max_sharpe
+            ef = EfficientFrontierCalculator(prices_df)
+            cleaned_weights = ef.calculate_efficient_frontier_weights(risk_free_rate=request.risk_free_rate)
+            performance = ef.calculate_efficient_frontier_performance(risk_free_rate=request.risk_free_rate)
+
+        # Calculate Sortino Ratio
+        # Sortino = (R - Rf) / Downside Deviation
+        # We need daily returns for this
+        daily_returns = prices_df.pct_change().dropna()
+        portfolio_returns = daily_returns.dot(pd.Series(cleaned_weights))
+        
+        # Downside deviation
+        target_return = 0
+        downside_returns = portfolio_returns[portfolio_returns < target_return]
+        downside_std = downside_returns.std() * np.sqrt(252) # Annualized
+        
+        expected_return = performance[0]
+        sortino_ratio = (expected_return - request.risk_free_rate) / downside_std if downside_std > 0 else 0.0
+
+        # Calculate VaR and CVaR (Monte Carlo Method, 95% confidence)
+        # Simulate 10,000 daily returns based on portfolio mu and sigma
+        mu_daily = performance[0] / 252
+        sigma_daily = performance[1] / np.sqrt(252)
+        
+        # Generate 10,000 hypothetical daily returns
+        simulated_returns = np.random.normal(mu_daily, sigma_daily, 10000)
+        
+        var_95 = np.percentile(simulated_returns, 5)
+        cvar_95 = simulated_returns[simulated_returns <= var_95].mean()
         
         # Prepare response data
         response_data = {
@@ -90,12 +119,15 @@ async def analyze_portfolio(request: TickerRequest):
             "performance": {
                 "expected_return": performance[0],
                 "volatility": performance[1],
-                "sharpe_ratio": performance[2]
+                "sharpe_ratio": performance[2],
+                "sortino_ratio": sortino_ratio,
+                "var_95": var_95,
+                "cvar_95": cvar_95
             },
             "valid_tickers": valid_tickers,
             "allocation": {
-                ticker: amount * request.investment_amount 
-                for ticker, amount in cleaned_weights.items() if amount > 0
+                ticker: weight * request.investment_amount 
+                for ticker, weight in cleaned_weights.items() if weight > 0
             }
         }
         

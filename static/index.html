@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Portfolio Optimizer</title>
+    <title>Portfolio Optimizer</title>
     <link rel="stylesheet" href="/static/style.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>AI Portfolio Optimizer</h1>
+            <h1>Portfolio Optimizer</h1>
             <p>Optimize your investments with the power of AI and Modern Portfolio Theory.</p>
         </header>
 
@@ -25,7 +25,6 @@
                         <label for="tickers">Tickers (comma separated)</label>
                         <div class="input-wrapper">
                             <input type="text" id="tickers" placeholder="e.g., AAPL, MSFT, GOOGL" required>
-                            <button type="button" id="ai-suggest-btn" class="secondary-btn">✨ AI Suggest</button>
                         </div>
                     </div>
 
@@ -55,6 +54,7 @@
                         <label for="strategy">Optimization Strategy</label>
                         <select id="strategy">
                             <option value="max_sharpe">Max Sharpe Ratio (Efficient Frontier)</option>
+                            <option value="min_volatility">Minimum Volatility (Lowest Risk)</option>
                             <option value="hrp">Hierarchical Risk Parity (HRP)</option>
                             <option value="black_litterman">Black-Litterman (Market Equilibrium)</option>
                         </select>
@@ -122,6 +122,18 @@
                             <span class="metric-label">Sharpe Ratio</span>
                             <span class="metric-value" id="sharpe-ratio">--</span>
                         </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Sortino Ratio</span>
+                            <span class="metric-value" id="sortino-ratio">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Value at Risk (95%)</span>
+                            <span class="metric-value" id="var-95">--</span>
+                        </div>
+                        <div class="metric-item">
+                            <span class="metric-label">Conditional VaR (95%)</span>
+                            <span class="metric-value" id="cvar-95">--</span>
+                        </div>
                     </div>
                 </div>
 
@@ -158,23 +170,9 @@
         </main>
     </div>
 
-    <!-- AI Modal -->
-    <div id="ai-modal" class="modal hidden">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <h2>AI Ticker Suggestion</h2>
-            <p>Describe your investment strategy or interests:</p>
-            <textarea id="ai-prompt" placeholder="e.g., High growth tech stocks involved in AI..."></textarea>
-            <div class="form-row">
-                <label>Number of tickers:</label>
-                <input type="number" id="ai-count" value="5" min="1" max="20">
-            </div>
-            <button id="generate-tickers-btn" class="primary-btn">Generate</button>
-            <div id="ai-loading" class="hidden">Generating...</div>
-        </div>
-    </div>
 
-    <script src="/static/script.js?v=1"></script>
+
+    <script src="/static/script.js?v=3"></script>
 </body>
 
 </html>
