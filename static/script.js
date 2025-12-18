@@ -111,6 +111,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Constraints Logic
+    const constraintsContainer = document.getElementById('constraints-container');
+    const addConstraintBtn = document.getElementById('add-constraint-btn');
+
+    addConstraintBtn.addEventListener('click', () => {
+        const constraintDiv = document.createElement('div');
+        constraintDiv.className = 'input-wrapper mb-2'; // Use input-wrapper for flex layout
+        constraintDiv.style.marginBottom = '0.5rem'; // Add spacing
+        constraintDiv.innerHTML = `
+            <input type="text" class="constraint-ticker" placeholder="Ticker (e.g., GLD)" style="flex: 1;">
+            <input type="number" class="constraint-weight" placeholder="Max % (0.15)" step="0.01" min="0" max="1" style="flex: 1;">
+            <button type="button" class="remove-constraint-btn" style="background: #ef4444; color: white; border: none; padding: 0 1rem; border-radius: 0.5rem; cursor: pointer;">X</button>
+        `;
+        constraintsContainer.appendChild(constraintDiv);
+
+        constraintDiv.querySelector('.remove-constraint-btn').addEventListener('click', () => {
+            constraintsContainer.removeChild(constraintDiv);
+        });
+    });
+
     // Form Submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -127,6 +147,16 @@ document.addEventListener('DOMContentLoaded', () => {
         const riskRate = parseFloat(document.getElementById('risk-rate').value) / 100;
         const strategy = document.getElementById('strategy').value;
 
+        // Collect Constraints
+        const constraints = {};
+        document.querySelectorAll('#constraints-container .input-wrapper').forEach(div => {
+            const ticker = div.querySelector('.constraint-ticker').value.trim();
+            const weight = parseFloat(div.querySelector('.constraint-weight').value);
+            if (ticker && !isNaN(weight)) {
+                constraints[ticker] = weight;
+            }
+        });
+
         analyzeBtn.textContent = 'Analyzing...';
         analyzeBtn.disabled = true;
 
@@ -142,7 +172,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     investment_amount: investment,
                     risk_free_rate: riskRate,
                     strategy: strategy,
-                    views: strategy === 'black_litterman' ? views : []
+                    views: strategy === 'black_litterman' ? views : [],
+                    constraints: Object.keys(constraints).length > 0 ? constraints : null
                 })
             });
 

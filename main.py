@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Dict
 import pandas as pd
 import numpy as np
 import json
@@ -34,6 +34,7 @@ class TickerRequest(BaseModel):
     investment_amount: float = 10000.0
     strategy: str = "max_sharpe" # Options: max_sharpe, hrp, black_litterman, min_volatility
     views: Optional[List[dict]] = None # List of views for Black-Litterman
+    constraints: Optional[Dict[str, float]] = None # Max weight constraints (e.g., {"GLD": 0.15})
 
 class SimulationRequest(BaseModel):
     tickers: List[str]
@@ -67,7 +68,7 @@ async def analyze_portfolio(request: TickerRequest):
 
         if request.strategy == "hrp":
             hrp = HRPCalculator(prices_df)
-            cleaned_weights = hrp.calculate_weights()
+            cleaned_weights = hrp.calculate_weights(constraints=request.constraints)
             performance = hrp.calculate_performance(risk_free_rate=request.risk_free_rate)
         
         elif request.strategy == "black_litterman":
