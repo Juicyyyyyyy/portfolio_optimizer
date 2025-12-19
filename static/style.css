@@ -78,7 +78,8 @@ label {
     font-size: 0.875rem;
 }
 
-input, textarea {
+input,
+textarea {
     width: 100%;
     padding: 0.75rem;
     background-color: var(--bg-color);
@@ -89,7 +90,8 @@ input, textarea {
     transition: border-color 0.2s;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
     outline: none;
     border-color: var(--primary-color);
 }
@@ -174,7 +176,8 @@ table {
     border-collapse: collapse;
 }
 
-th, td {
+th,
+td {
     padding: 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-color);

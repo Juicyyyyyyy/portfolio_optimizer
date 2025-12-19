@@ -254,8 +254,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (weight > 0.001) { // Only show significant weights
                 const row = document.createElement('tr');
                 const value = data.allocation[ticker];
+                const fullName = data.names && data.names[ticker] ? `${ticker} <span class="text-muted" style="font-size: 0.85em;">(${data.names[ticker]})</span>` : ticker;
+
                 row.innerHTML = `
-                    <td>${ticker}</td>
+                    <td>${fullName}</td>
                     <td>${(weight * 100).toFixed(2)}%</td>
                     <td>$${value.toFixed(2)}</td>
                 `;

@@ -114,6 +114,9 @@ async def analyze_portfolio(request: TickerRequest):
         var_95 = np.percentile(simulated_returns, 5)
         cvar_95 = simulated_returns[simulated_returns <= var_95].mean()
         
+        # Fetch Asset Names
+        asset_names = market_data_provider.get_asset_names(valid_tickers)
+
         # Prepare response data
         response_data = {
             "weights": cleaned_weights,
@@ -126,6 +129,7 @@ async def analyze_portfolio(request: TickerRequest):
                 "cvar_95": cvar_95
             },
             "valid_tickers": valid_tickers,
+            "names": asset_names,
             "allocation": {
                 ticker: weight * request.investment_amount 
                 for ticker, weight in cleaned_weights.items() if weight > 0

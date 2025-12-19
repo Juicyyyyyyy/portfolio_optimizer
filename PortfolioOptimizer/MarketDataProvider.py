@@ -54,3 +54,20 @@ class MarketDataProvider:
         except Exception as e:
             logging.error(f"Error fetching data for {valid_tickers} from {start_date} to {end_date}: {e}")
             raise
+
+    @staticmethod
+    def get_asset_names(tickers: List[str]) -> dict:
+        """
+        Fetches the full name (longName) for a list of tickers.
+        Returns a dictionary {ticker: full_name}.
+        """
+        names = {}
+        for ticker in tickers:
+            try:
+                info = yf.Ticker(ticker).info
+                # Try longName, then shortName, then fallback to ticker
+                names[ticker] = info.get('longName') or info.get('shortName') or ticker
+            except Exception as e:
+                logging.warning(f"Could not fetch name for {ticker}: {e}")
+                names[ticker] = ticker
+        return names
